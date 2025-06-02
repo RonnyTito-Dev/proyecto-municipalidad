@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_container_muni             # Nombre del container
+    restart: always                                     # Reiniciar siempre el contenedor
+    environment:
+      POSTGRES_USER: ${DB_USER}                         # Usuario de la DB
+      POSTGRES_PASSWORD: ${DB_PASSWORD}                 # Contrasenia del Usuario
+      POSTGRES_DB: ${DB_NAME}                           # Nombre de la base de datos
+      TZ: ${DB_TZ}                                      # Zona horaria del sistema Peru
+      POSTGRES_INITDB_ARGS: "--timezone=${DB_TZ}"       # Zona horaria para PostgreSQL
+    ports:
+      - ${DB_PORT}:${DB_PORT}                           # Puerto Host : Puerto Container
+    volumes:
+      - pgdata:/var/lib/postgresql/data                 # Volumen Persistente
+    networks:
+      - red_muni                                        # Red municipalidad
+
+volumes:
+  pgdata:
+
+# Red para interconectar servicios
+networks:
+  red_muni:
+    driver: bridge                                      # Tipo de red Bridge
