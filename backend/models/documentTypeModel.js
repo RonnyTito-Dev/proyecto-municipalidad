@@ -7,21 +7,53 @@ class DocumentTypeModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todos los tipos de documento (sin filtro)
+    // Obtener todos los tipos de documento
     async getAllDocumentTypes() {
-        const result = await db.query('SELECT * FROM tipos_documento ORDER BY nombre');
+        const result = await db.query(
+            `SELECT
+                td.id,
+                td.nombre,
+                td.descripcion,
+                TO_CHAR(td.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+			FROM tipos_documento td
+            INNER JOIN estados_registro er ON td.estado_registro_id = er.id`
+        );
         return result.rows;
     }
 
-    // Obtener solo tipos activos (estado_registro_id = 1)
+    // Obtener solo tipos activos
     async getActiveDocumentTypes() {
-        const result = await db.query('SELECT * FROM tipos_documento WHERE estado_registro_id = 1 ORDER BY nombre');
+        const result = await db.query(
+            `SELECT
+                td.id,
+                td.nombre,
+                td.descripcion,
+                TO_CHAR(td.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+			FROM tipos_documento td
+            INNER JOIN estados_registro er ON td.estado_registro_id = er.id
+            WHERE td.estado_registro_id = 1`
+        );
         return result.rows;
     }
 
-    // Obtener solo tipos eliminados (estado_registro_id = 2)
+    // Obtener solo tipos eliminados
     async getDeletedDocumentTypes() {
-        const result = await db.query('SELECT * FROM tipos_documento WHERE estado_registro_id = 2 ORDER BY nombre');
+        const result = await db.query(
+            `SELECT
+                td.id,
+                td.nombre,
+                td.descripcion,
+                TO_CHAR(td.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+			FROM tipos_documento td
+            INNER JOIN estados_registro er ON td.estado_registro_id = er.id
+            WHERE td.estado_registro_id = 2`
+        );
         return result.rows;
     }
 
@@ -64,13 +96,23 @@ class DocumentTypeModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE =============================
+    // ============================ MÉTODO PATCH =============================
 
-    // Eliminado lógico: cambiar estado_registro_id a 2
+    // Eliminado lógica
     async deleteDocumentType(id) {
         await db.query(
             `UPDATE tipos_documento
              SET estado_registro_id = 2
+             WHERE id = $1`,
+            [id]
+        );
+    }
+
+    // Restauracion lógica
+    async restoreDocumentType(id) {
+        await db.query(
+            `UPDATE tipos_documento
+             SET estado_registro_id = 1
              WHERE id = $1`,
             [id]
         );

@@ -45,7 +45,10 @@ router.put('/:id', notificationChannelController.updateChannel);
 // ======================================= SOLICITUD DELETE =======================================
 
 // Eliminación lógica de un canal de notificación por ID
-router.delete('/:id', notificationChannelController.deleteChannel);
+router.patch('/:id/eliminar', notificationChannelController.deleteChannel);
+
+// Restauracion lógica de un canal de notificación por ID
+router.patch('/:id/restaurar', notificationChannelController.restoreChannel);
 
 // Exportamos el router
 module.exports = router;

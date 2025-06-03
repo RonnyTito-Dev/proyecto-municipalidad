@@ -7,30 +7,10 @@ class DocumentController {
 
     // ================================ MÉTODOS GET ================================
 
-    // Obtener todos los documentos (sin filtrar estado)
+    // Obtener todos los documentos
     async getDocuments(req, res, next) {
         try {
             const documents = await documentService.getDocuments();
-            res.json(documents);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener documentos activos
-    async getActiveDocuments(req, res, next) {
-        try {
-            const documents = await documentService.getActiveDocuments();
-            res.json(documents);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener documentos eliminados
-    async getDeletedDocuments(req, res, next) {
-        try {
-            const documents = await documentService.getDeletedDocuments();
             res.json(documents);
         } catch (error) {
             next(error);
@@ -99,34 +79,7 @@ class DocumentController {
         }
     }
 
-    // ================================ MÉTODO PUT ================================
-
-    // Actualizar documento por ID
-    async updateDocument(req, res, next) {
-        const { id } = req.params;
-        const data = req.body;
-
-        try {
-            const updatedDocument = await documentService.modifyDocument(id, data);
-            res.json(updatedDocument);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // ================================ MÉTODO DELETE ================================
-
-    // Eliminación lógica de documento
-    async deleteDocument(req, res, next) {
-        const { id } = req.params;
-
-        try {
-            await documentService.removeDocument(id);
-            res.sendStatus(204); // No Content
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
+// Exportamos una instancia del controller
 module.exports = new DocumentController();

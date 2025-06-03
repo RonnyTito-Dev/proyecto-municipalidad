@@ -7,7 +7,7 @@ class NotificationChannelController {
 
     // ========================================== MÉTODOS GET ==========================================
 
-    // Método para obtener todos los canales de notificación (sin importar estado)
+    // Método para obtener todos los canales de notificación
     async getChannels(req, res, next) {
         try {
             const channels = await notificationChannelService.getChannels();
@@ -27,7 +27,7 @@ class NotificationChannelController {
         }
     }
 
-    // Método para obtener solo los canales eliminados (lógicos)
+    // Método para obtener solo los canales eliminados
     async getDeletedChannels(req, res, next) {
         try {
             const channels = await notificationChannelService.getDeletedChannels();
@@ -90,7 +90,7 @@ class NotificationChannelController {
         }
     }
 
-    // ========================================== MÉTODO DELETE ==========================================
+    // ========================================== MÉTODO PATCH ==========================================
 
     // Método para eliminar (lógicamente) un canal de notificación
     async deleteChannel(req, res, next) {
@@ -98,6 +98,18 @@ class NotificationChannelController {
 
         try {
             await notificationChannelService.removeChannel(id);
+            res.sendStatus(204); // Sin contenido
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Método para restaurar (lógicamente) un canal de notificación
+    async restoreChannel(req, res, next) {
+        const { id } = req.params;
+
+        try {
+            await notificationChannelService.restoreChannel(id);
             res.sendStatus(204); // Sin contenido
         } catch (error) {
             next(error);

@@ -26,11 +26,13 @@ router.get('/activos', areaController.getActiveAreas);
 // Obtener solo las áreas eliminadas
 router.get('/eliminados', areaController.getDeletedAreas);
 
+// Obtener un área por nombre
+router.get('/nombre/:nombre', areaController.getAreaByName);
+
 // Obtener un área por ID
 router.get('/:id', areaController.getAreaById);
 
-// Obtener un área por nombre
-router.get('/nombre/:nombre', areaController.getAreaByName);
+
 
 // ======================================= SOLICITUD POST =======================================
 
@@ -42,10 +44,13 @@ router.post('/', areaController.createArea);
 // Actualizar un área existente
 router.put('/:id', areaController.updateArea);
 
-// ======================================= SOLICITUD DELETE =======================================
+// ======================================= SOLICITUD PATCH =======================================
 
 // Eliminar un área
-router.delete('/:id', areaController.deleteArea);
+router.patch('/:id/eliminar', areaController.deleteArea);
+
+// Restaurar un área
+router.patch('/:id/restaurar', areaController.restoreArea);
 
 // Exportamos el router
 module.exports = router;

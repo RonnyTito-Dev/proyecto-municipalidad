@@ -7,46 +7,71 @@ class RequestStatusHistoryModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todo el historial de cambios de estado (sin filtro)
+    // Obtener todo el historial de cambios de estado
     async getAllStatusHistories() {
         const result = await db.query(
-            'SELECT * FROM historial_estados_solicitud ORDER BY fecha_cambio DESC'
+            `SELECT
+				hes.id,
+                hes.codigo_solicitud,
+                es.nombre AS estado_solicitud,
+                ara.nombre AS area_actual,
+                ard.nombre AS area_destino,
+                hes.notas,
+                TO_CHAR(hes.fecha_registro, 'DD/MM/YYYY HH24:MI:SS') AS fecha_registro
+			FROM historial_estados_solicitud hes
+            INNER JOIN estados_solicitud es ON hes.estado_solicitud_id = es.id
+            LEFT JOIN areas ara ON hes.area_actual_id = ara.id
+            LEFT JOIN areas ard ON hes.area_destino_id = ard.id
+            ORDER BY hes.id DESC`
         );
         return result.rows;
     }
 
-    // Obtener historial activo (estado_registro_id = 1)
-    async getActiveStatusHistories() {
-        const result = await db.query(
-            'SELECT * FROM historial_estados_solicitud WHERE estado_registro_id = 1 ORDER BY fecha_cambio DESC'
-        );
-        return result.rows;
-    }
 
-    // Obtener historial eliminado (estado_registro_id = 2)
-    async getDeletedStatusHistories() {
-        const result = await db.query(
-            'SELECT * FROM historial_estados_solicitud WHERE estado_registro_id = 2 ORDER BY fecha_cambio DESC'
-        );
-        return result.rows;
-    }
-
-    // Obtener historial por código de solicitud
+    // Obtener historial por código de solicitud - crudo
     async getStatusHistoriesByRequestCode(codigo_solicitud) {
         const result = await db.query(
-            'SELECT * FROM historial_estados_solicitud WHERE codigo_solicitud = $1 ORDER BY fecha_cambio DESC',
+            'SELECT * FROM historial_estados_solicitud WHERE codigo_solicitud = $1 ORDER BY id DESC',
             [codigo_solicitud]
         );
         return result.rows;
     }
 
-    // Obtener historial por ID
+    // Obtener historial por código de seguiminto - detallado
+    async getStatusHistoriesByTrackingCode(codigo_seguimiento) {
+        const result = await db.query(
+            `SELECT
+				hes.id,
+                hes.codigo_solicitud,
+                so.codigo_seguimiento AS codigo_seguimiento,
+                es.nombre AS estado_solicitud,
+                ara.nombre AS area_actual,
+                ard.nombre AS area_destino,
+                hes.notas,
+                TO_CHAR(hes.fecha_registro, 'DD/MM/YYYY HH24:MI:SS') AS fecha_registro,
+                er.id AS estado_id,
+                er.nombre AS estado
+				FROM historial_estados_solicitud hes
+            INNER JOIN solicitudes so ON hes.codigo_solicitud = so.codigo_solicitud
+            INNER JOIN estados_solicitud es ON hes.estado_solicitud_id = es.id
+            LEFT JOIN areas ara ON hes.area_actual_id = ara.id
+            LEFT JOIN areas ard ON hes.area_destino_id = ard.id
+            INNER JOIN estados_registro er ON hes.estado_registro_id = er.id
+            WHERE so.codigo_seguimiento = $1
+            ORDER BY hes.id DESC`,
+            [codigo_seguimiento]
+        );
+        return result.rows;
+    }
+
+
+    // Obtener historial por id - crudo
     async getStatusHistoryById(id) {
         const result = await db.query(
-            'SELECT * FROM historial_estados_solicitud WHERE id = $1',
+            'SELECT * FROM historial_estados_solicitud WHERE id = $1 ORDER BY id DESC',
             [id]
         );
-        return result.rows[0];
+        return result.rows;
     }
 
     // ============================= MÉTODO POST =============================
@@ -55,59 +80,26 @@ class RequestStatusHistoryModel {
     async createStatusHistory({
         codigo_solicitud,
         estado_solicitud_id,
-        area_id,
-        observaciones,
+        area_actual_id,
+        area_destiono_id,
+        notas,
         usuario_id
     }) {
         const result = await db.query(
             `INSERT INTO historial_estados_solicitud (
                 codigo_solicitud,
                 estado_solicitud_id,
-                area_id,
-                observaciones,
+                area_actual_id,
+                area_destino_id,
+                notas,
                 usuario_id
-            ) VALUES ($1, $2, $3, $4, $5)
+            ) VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *`,
-            [codigo_solicitud, estado_solicitud_id, area_id, observaciones, usuario_id]
+            [codigo_solicitud, estado_solicitud_id, area_actual_id, area_destiono_id, notas, usuario_id]
         );
         return result.rows[0];
     }
 
-    // ============================= MÉTODO PUT ==============================
-
-    // Actualizar un registro del historial por ID
-    async updateStatusHistory(id, {
-        codigo_solicitud,
-        estado_solicitud_id,
-        area_id,
-        observaciones,
-        usuario_id
-    }) {
-        const result = await db.query(
-            `UPDATE historial_estados_solicitud
-             SET codigo_solicitud = $1,
-                 estado_solicitud_id = $2,
-                 area_id = $3,
-                 observaciones = $4,
-                 usuario_id = $5
-             WHERE id = $6
-             RETURNING *`,
-            [codigo_solicitud, estado_solicitud_id, area_id, observaciones, usuario_id, id]
-        );
-        return result.rows[0];
-    }
-
-    // ============================ MÉTODO DELETE =============================
-
-    // Eliminación lógica: actualizar estado_registro_id a 2 (eliminado)
-    async deleteStatusHistory(id) {
-        await db.query(
-            `UPDATE historial_estados_solicitud
-             SET estado_registro_id = 2
-             WHERE id = $1`,
-            [id]
-        );
-    }
 }
 
 // Exportar una instancia del modelo

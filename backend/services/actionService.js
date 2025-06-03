@@ -124,9 +124,9 @@ class ActionService {
         return await actionModel.updateAction(id, { nombre, descripcion });
     }
 
-    // ============================= MÉTODOS DELETE ==============================
+    // ============================= MÉTODOS PATCH ==============================
 
-    // Eliminación lógica: actualizar estado_registro_id a 2
+    // Eliminación lógica
     async removeAction(id) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID de la acción debe ser un número entero positivo');
@@ -138,6 +138,20 @@ class ActionService {
         }
 
         await actionModel.deleteAction(id);
+    }
+
+    // Restauracion lógica
+    async restoreAction(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID de la acción debe ser un número entero positivo');
+        }
+
+        const existing = await actionModel.getActionById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Acción con ID ${id} no encontrada`);
+        }
+
+        await actionModel.restoreAction(id);
     }
 }
 

@@ -20,12 +20,6 @@ router.use(authMiddleware);
 // Obtener todos los archivos adjuntos
 router.get('/', attachmentController.getAttachments);
 
-// Obtener solo los archivos adjuntos activos
-router.get('/activos', attachmentController.getActiveAttachments);
-
-// Obtener solo los archivos adjuntos eliminados
-router.get('/eliminados', attachmentController.getDeletedAttachments);
-
 // Obtener un archivo adjunto por ID
 router.get('/:id', attachmentController.getAttachmentById);
 
@@ -40,15 +34,6 @@ router.get('/codigo/:codigoSolicitud', attachmentController.getAttachmentsByRequ
 // Crear un nuevo archivo adjunto
 router.post('/', attachmentController.createAttachment);
 
-// ======================================= SOLICITUD PUT =======================================
-
-// Actualizar un archivo adjunto por ID
-router.put('/:id', attachmentController.updateAttachment);
-
-// ======================================= SOLICITUD DELETE =======================================
-
-// Eliminar un archivo adjunto
-router.delete('/:id', attachmentController.deleteAttachment);
 
 // Exportamos el router
 module.exports = router;

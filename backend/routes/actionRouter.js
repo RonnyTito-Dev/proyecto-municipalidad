@@ -26,11 +26,12 @@ router.get('/activos', actionController.getActiveActions);
 // Obtener solo las acciones eliminadas
 router.get('/eliminados', actionController.getDeletedActions);
 
+// Obtener una acción por nombre
+router.get('/nombre/:nombre', actionController.getActionByName);
+
 // Obtener una acción por ID
 router.get('/:id', actionController.getActionById);
 
-// Obtener una acción por nombre
-router.get('/nombre/:nombre', actionController.getActionByName);
 
 // ======================================= SOLICITUD POST =======================================
 
@@ -42,10 +43,13 @@ router.post('/', actionController.createAction);
 // Actualizar una acción existente
 router.put('/:id', actionController.updateAction);
 
-// ======================================= SOLICITUD DELETE =======================================
+// ======================================= SOLICITUD PATCH =======================================
 
 // Eliminar una acción
-router.delete('/:id', actionController.deleteAction);
+router.patch('/:id/eliminar', actionController.deleteAction);
+
+// Eliminar una acción
+router.patch('/:id/restaurar', actionController.restoreAction);
 
 // Exportamos el router
 module.exports = router; 

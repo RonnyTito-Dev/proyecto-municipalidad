@@ -22,7 +22,7 @@ class RequestService {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las solicitudes (sin importar estado)
+    // Obtener todas las solicitudes - solo areas 1 y 2
     async getRequests() {
         const requests = await requestModel.getAllRequests();
         if (!requests || requests.length === 0) {
@@ -31,31 +31,63 @@ class RequestService {
         return requests;
     }
 
-    // Obtener solo solicitudes activas
-    async getActiveRequests() {
-        const requests = await requestModel.getActiveRequests();
+    // Obtener solicitudes todas las solicitudes filtradas por area
+    async getAllRequestsByArea(area_id){
+
+        if (!area_id || isNaN(area_id) || Number(area_id) <= 0 || !Number.isInteger(Number(area_id))) {
+            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
+        }
+
+        const requests = await requestModel.getAllRequestsByArea(area_id);
+
         if (!requests || requests.length === 0) {
-            throw ApiError.notFound('No hay solicitudes activas registradas');
+            throw ApiError.notFound('No hay solicitudes registradas');
         }
         return requests;
     }
 
-    // Obtener solo solicitudes eliminadas
-    async getDeletedRequests() {
-        const requests = await requestModel.getDeletedRequests();
+    // Obtener solicitudes todas las solicitudes filtradas por estado de solicitud
+    async getAllRequestsByStatus(estado_solicitud_id){
+
+        if (!estado_solicitud_id || isNaN(estado_solicitud_id) || Number(estado_solicitud_id) <= 0 || !Number.isInteger(Number(estado_solicitud_id))) {
+            throw ApiError.badRequest('El estado de solicitud debe ser un número entero positivo');
+        }
+
+        const requests = await requestModel.getAllRequestsByStatus(estado_solicitud_id);
+
         if (!requests || requests.length === 0) {
-            throw ApiError.notFound('No hay solicitudes eliminadas registradas');
+            throw ApiError.notFound('No hay solicitudes registradas');
+        }
+        return requests;
+    }
+    
+    // Obtener solicitudes todas las solicitudes filtradas por area y estados solicitud
+    async getAllRequestsByAreaAndStatus(area_id, estado_solicitud_id){
+
+        if (!area_id || isNaN(area_id) || Number(area_id) <= 0 || !Number.isInteger(Number(area_id))) {
+            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
+        }
+
+        if (!estado_solicitud_id || isNaN(estado_solicitud_id) || Number(estado_solicitud_id) <= 0 || !Number.isInteger(Number(estado_solicitud_id))) {
+            throw ApiError.badRequest('El ID del estado de solicitud debe ser un número entero positivo');
+        }
+
+        const requests = await requestModel.getAllRequestsByAreaAndStatus(area_id, estado_solicitud_id);
+        
+        if (!requests || requests.length === 0) {
+            throw ApiError.notFound('No hay solicitudes registradas');
         }
         return requests;
     }
 
-    // Obtener una solicitud por código de solicitud
-    async getRequestByCodigoSolicitud(codigo) {
-        if (!codigo) {
+
+    // Obtener una solicitud por código de solicitud - detallado
+    async getRequestByRequestCode(codigo_solicitud) {
+        if (!codigo_solicitud) {
             throw ApiError.badRequest('El código de solicitud es requerido');
         }
 
-        const codigoFormateado = formatter.toUpperCase(codigo);
+        const codigoFormateado = formatter.toUpperCase(codigo_solicitud);
         const request = await requestModel.getRequestByCode(codigoFormateado);
 
         if (!request) {
@@ -64,13 +96,14 @@ class RequestService {
         return request;
     }
 
-    // Obtener una solicitud por código de seguimiento
-    async getRequestByCodigoSeguimiento(codigo) {
-        if (!codigo) {
+
+    // Obtener una solicitud por código de seguimiento - detallado
+    async getRequestByTrackingCode(codigo_seguimiento) {
+        if (!codigo_seguimiento) {
             throw ApiError.badRequest('El código de seguimiento es requerido');
         }
 
-        const codigoFormateado = formatter.toUpperCase(codigo);
+        const codigoFormateado = formatter.toUpperCase(codigo_seguimiento);
         const request = await requestModel.getRequestByTrackingCode(codigoFormateado);
 
         if (!request) {
@@ -79,8 +112,9 @@ class RequestService {
         return request;
     }
 
+
     // Obtener solicitud por código de seguimiento y PIN (acceso para ciudadano)
-    async getRequestByTrackingCodeAndPin(codigo_seguimiento, pin) {
+    async getRequestByTrackingCodeAndPin(codigo_seguimiento, pin_seguridad) {
         // Validar código de seguimiento
         if (!codigo_seguimiento?.trim()) {
             throw ApiError.badRequest('El código de seguimiento es obligatorio');
@@ -89,10 +123,10 @@ class RequestService {
         const codigoFormateado = formatter.toUpperCase(codigo_seguimiento);
 
         // Validar PIN
-        if (!pin?.trim()) {
+        if (!pin_seguridad?.trim()) {
             throw ApiError.badRequest('El PIN es obligatorio');
         }
-        const pinFormateado = formatter.trim(pin);
+        const pinFormateado = formatter.trim(pin_seguridad);
 
         if (!/^\d{4}$/.test(pinFormateado)) {
             throw ApiError.badRequest('El PIN debe ser un string de 4 dígitos numéricos');
@@ -106,7 +140,7 @@ class RequestService {
         }
 
         // Comparar pin
-        const pinValido = await comparePin(pinFormateado, requestModel.pin);
+        const pinValido = await comparePin(pinFormateado, request.pin_seguridad);
 
         if (!pinValido) {
             throw ApiError.unauthorized('PIN incorrecto. Verifique e intente de nuevo.');
@@ -145,15 +179,18 @@ class RequestService {
         if (!data.celular_ciudadano?.trim()) throw ApiError.badRequest('El celular del ciudadano es obligatorio');
         if (!/^\d{9}$/.test(data.celular_ciudadano.trim())) throw ApiError.badRequest('El celular debe ser un string de 9 dígitos numéricos');
 
+        // Validat area sugerida
+        if(!data.area_sugerida_id) throw ApiError.badRequest('El area sugerida es obligatorio');
+
         // Validar asunto
         if (!data.asunto?.trim()) throw ApiError.badRequest('El asunto es obligatorio');
 
         // Validar la solicitud (mensaje)
-        if (!data.solicitud?.trim()) throw ApiError.badRequest('La solicitud o mensaje es obligatorio');
+        if (!data.contenido?.trim()) throw ApiError.badRequest('El contenido o mensaje es obligatorio');
 
         // Validar que pin sea string de 4 dígitos numéricos
-        if (!data.pin?.trim()) throw ApiError.badRequest('El PIN es obligatorio');
-        if (typeof data.pin !== 'string' || !/^\d{4}$/.test(data.pin.trim())) {
+        if (!data.pin_seguridad?.trim()) throw ApiError.badRequest('El PIN es obligatorio');
+        if (typeof data.pin_seguridad !== 'string' || !/^\d{4}$/.test(data.pin_seguridad.trim())) {
             throw ApiError.badRequest('El PIN debe ser un string de 4 dígitos numéricos');
         }
 
@@ -171,13 +208,14 @@ class RequestService {
         const email_ciudadano = formatter.toLowerCase(data.email_ciudadano);
         const celular_ciudadano = formatter.trim(data.celular_ciudadano);
 
+        const area_sugerida_id = data.area_sugerida_id;
         const asunto = formatter.toTitleCase(data.asunto);
-        const solicitud = formatter.trim(data.solicitud);
-        const pin = await hashPin(formatter.trim(data.pin)); // Hashear el pin
+        const solicitud = formatter.trim(data.contenido);
+        const pin_seguridad = await hashPin(formatter.trim(data.pin_seguridad)); // Hashear el pin
         const canal_notificacion_id = data.canal_notificacion_id;
 
         const canal_solicitud_id = data.id_usuario ? 2 : 1; // 2 = UTSD | 1 = Web
-        const usuario_id = data.id_usuario ? data.id_usuario : null;  // Usuario quien registro 
+        const usuario_id = data.id_usuario ? data.id_usuario : NULL;  // Usuario quien registro 
 
         // Capturar el fecha y hora actual
         const fechaHoraCompacta = `${DTH.getCompactTime()}_${DTH.getCompactDate()}`;
@@ -202,22 +240,22 @@ class RequestService {
         }
 
         // Finalmente crear la solicitud
-        return await requestModel.createRequest({ codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano, sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, asunto, solicitud, pin, canal_notificacion_id, canal_solicitud_id, usuario_id });
+        return await requestModel.createRequest({ codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano, sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, area_sugerida_id, asunto, contenido, pin_seguridad, canal_notificacion_id, canal_solicitud_id, usuario_id });
     }
 
 
     // ============================= MÉTODOS PUT ==============================
 
     // Actualizar solo el estado de una solicitud
-    async modifyRequestStatus(codigo, estado_solicitud_id) {
-        if (!codigo) {
+    async modifyRequestStatus(codigo_solicitud, estado_solicitud_id) {
+        if (!codigo_solicitud) {
             throw ApiError.badRequest('Código de solicitud requerido');
         }
         if (!estado_solicitud_id || isNaN(estado_solicitud_id)) {
             throw ApiError.badRequest('Estado de solicitud inválido');
         }
 
-        const codigoFormateado = formatter.toUpperCase(codigo);
+        const codigoFormateado = formatter.toUpperCase(codigo_solicitud);
         const request = await requestModel.getRequestByCode(codigoFormateado);
 
         if (!request) {
@@ -227,65 +265,45 @@ class RequestService {
         return await requestModel.updateStatusRequest(codigoFormateado, estado_solicitud_id);
     }
 
-    // Actualizar solo el área actual de una solicitud
-    async modifyRequestArea(codigo, area_actual_id) {
-        if (!codigo) {
+    // Actualizar la asignacion de un area
+    async modifyRequestAsignArea(codigo_solicitud, area_asignada_id) {
+        if (!codigo_solicitud) {
             throw ApiError.badRequest('Código de solicitud requerido');
         }
-        if (!area_actual_id || isNaN(area_actual_id)) {
-            throw ApiError.badRequest('Área inválida');
+        if (!area_asignada_id || isNaN(area_asignada_id)) {
+            throw ApiError.badRequest('Área de asignacion inválida');
         }
 
-        const codigoFormateado = formatter.toUpperCase(codigo);
+        const codigoFormateado = formatter.toUpperCase(codigo_solicitud);
         const request = await requestModel.getRequestByCode(codigoFormateado);
         if (!request) {
             throw ApiError.notFound(`Solicitud con código "${codigoFormateado}" no encontrada`);
         }
 
-        return await requestModel.updateAreaRequest(codigoFormateado, area_actual_id);
+        return await requestModel.updateAsignAreaRequest(codigoFormateado, area_asignada_id);
     }
 
-    // Actualizar estado y área a la vez
-    async modifyStatusAndArea(codigo, estado_solicitud_id, area_actual_id) {
-        if (!codigo) {
+    // Actualizar asignar de un area y cambiar su estado de solicitud
+    async modifyStatusAndAreaAsign(codigo_solicitud, estado_solicitud_id, area_asignada_id) {
+        if (!codigo_solicitud) {
             throw ApiError.badRequest('Código de solicitud requerido');
         }
         if (!estado_solicitud_id || isNaN(estado_solicitud_id)) {
             throw ApiError.badRequest('Estado inválido');
         }
-        if (!area_actual_id || isNaN(area_actual_id)) {
-            throw ApiError.badRequest('Área inválida');
+        if (!area_asignada_id || isNaN(area_asignada_id)) {
+            throw ApiError.badRequest('Área de asignacion inválida');
         }
 
-        const codigoFormateado = formatter.toUpperCase(codigo);
+        const codigoFormateado = formatter.toUpperCase(codigo_solicitud);
         const request = await requestModel.getRequestByCode(codigoFormateado);
         if (!request) {
             throw ApiError.notFound(`Solicitud con código "${codigoFormateado}" no encontrada`);
         }
 
-        return await requestModel.updateStatusAndArea(codigoFormateado, estado_solicitud_id, area_actual_id);
+        return await requestModel.updateStatusAndAreaAsign(codigoFormateado, estado_solicitud_id, area_asignada_id);
     }
 
-
-
-
-    // ============================= MÉTODOS DELETE ==============================
-
-    // Eliminación lógica: actualizar estado_registro_id a 2
-    async removeRequest(codigo) {
-        if (!codigo) {
-            throw ApiError.badRequest('El código de solicitud es requerido para eliminar');
-        }
-
-        const codigoFormateado = formatter.toUpperCase(codigo);
-        const existing = await requestModel.getRequestByCodigoSolicitud(codigoFormateado);
-
-        if (!existing) {
-            throw ApiError.notFound(`Solicitud con código "${codigoFormateado}" no encontrada`);
-        }
-
-        await requestModel.deleteRequest(codigoFormateado);
-    }
 }
 
 // Exportar una instancia del servicio

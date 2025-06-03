@@ -17,26 +17,6 @@ class NotificationController {
         }
     }
 
-    // Método para obtener solo las notificaciones activas
-    async getActiveNotifications(req, res, next) {
-        try {
-            const notifications = await notificationService.getActiveNotifications();
-            res.json(notifications);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Método para obtener solo las notificaciones eliminadas (lógicas)
-    async getDeletedNotifications(req, res, next) {
-        try {
-            const notifications = await notificationService.getDeletedNotifications();
-            res.json(notifications);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     // Método para obtener notificaciones por código de solicitud
     async getNotificationsByRequestCode(req, res, next) {
         const { codigo } = req.params;
@@ -79,35 +59,6 @@ class NotificationController {
         }
     }
 
-    // ========================================== MÉTODO PUT ==========================================
-
-    // Método para actualizar una notificación existente
-    async updateNotification(req, res, next) {
-        const { id } = req.params;
-        const { codigo_solicitud, canal_notificacion_id, mensaje } = req.body;
-
-        try {
-            const updatedNotification = await notificationService.modifyNotification(id, { codigo_solicitud, canal_notificacion_id, mensaje,
-            });
-            res.json(updatedNotification);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // ========================================== MÉTODO DELETE ==========================================
-
-    // Método para eliminar (lógicamente) una notificación
-    async deleteNotification(req, res, next) {
-        const { id } = req.params;
-
-        try {
-            await notificationService.removeNotification(id);
-            res.sendStatus(204); // Sin contenido
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 // Exportamos la instancia de la clase

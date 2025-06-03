@@ -25,7 +25,25 @@ class UserService {
         return users;
     }
 
-    // Obtener usuarios activos (estado_registro_id = 1)
+    // Obtener usuarios habilitados para el sistema
+    async getEnabledUsers() {
+        const users = await userModel.getEnabledUsers();
+        if (!users || users.length === 0) {
+            throw ApiError.notFound('No hay usuarios habilitados');
+        }
+        return users;
+    }
+
+    // Obtener usuarios deshabilitados para el sistema
+    async getDisabledUsers() {
+        const users = await userModel.getDisabledUsers();
+        if (!users || users.length === 0) {
+            throw ApiError.notFound('No hay usuarios activos deshabilitados');
+        }
+        return users;
+    }
+
+    // Obtener usuarios no eliminados (activos)
     async getActiveUsers() {
         const users = await userModel.getActiveUsers();
         if (!users || users.length === 0) {
@@ -34,7 +52,7 @@ class UserService {
         return users;
     }
 
-    // Obtener usuarios eliminados (estado_registro_id = 2)
+    // Obtener usuarios eliminados
     async getDeletedUsers() {
         const users = await userModel.getDeletedUsers();
         if (!users || users.length === 0) {
@@ -150,15 +168,20 @@ class UserService {
         }
 
         // Validar el pin
-        if (!data.pin?.trim()) throw ApiError.badRequest('El PIN es requerido');
+        if (!data.pin_seguridad?.trim()) throw ApiError.badRequest('El PIN es requerido');
 
-        if (typeof data.pin !== 'string' || !/^\d{4}$/.test(data.pin.trim())) {
+        if (typeof data.pin_seguridad !== 'string' || !/^\d{4}$/.test(data.pin_seguridad.trim())) {
             throw ApiError.badRequest('El PIN debe ser de 4 dígitos numéricos');
         }
 
         // Validar contrasenia
         if (!data.contrasenia?.trim()) throw ApiError.badRequest('La contraseña es requerida');
         if (data.contrasenia.trim().length < 8) throw ApiError.badRequest('La contraseña debe tener al menos 8 caracteres');
+
+        // Validar rol
+        if (data.rol_id === undefined || data.rol_id === null || !Number.isInteger(data.rol_id) || data.rol_id <= 0) {
+            throw ApiError.badRequest('El rol debe ser un número entero positivo');
+        }
 
         // Validar area
         if (data.area_id === undefined || data.area_id === null || !Number.isInteger(data.area_id) || data.area_id <= 0) {
@@ -176,11 +199,12 @@ class UserService {
         const dni = formatter.toUpperCase(data.dni);
         const email = formatter.toLowerCase(data.email);
         const celular = formatter.trim(data.celular);
+        const rol_id = data.rol_id;
         const area_id = data.area_id;
         const estado_usuario_id = data.estado_usuario_id;
 
         // Hashear pin y contrasenia
-        const pin = await bcryptHelper.hashPin(formatter.toUpperCase(data.pin));
+        const pin_seguridad = await bcryptHelper.hashPin(formatter.toUpperCase(data.pin));
         const contrasenia = await bcryptHelper.hashPassword(data.contrasenia);
 
 
@@ -198,8 +222,9 @@ class UserService {
             dni,
             email,
             celular,
-            pin,
+            pin_seguridad,
             contrasenia,
+            rol_id,
             area_id,
             estado_usuario_id,
         });
@@ -365,6 +390,28 @@ class UserService {
         return await userModel.updateUserPin(id, pin_nuevo);
     }
 
+    // Cambiar el rol  al usuario
+    async updateUserRol(id, rol_id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
+        }
+
+        if (rol_id === undefined || rol_id === null || isNaN(Number(rol_id)) || Number(rol_id) <= 0 || !Number.isInteger(Number(rol_id))) {
+            throw ApiError.badRequest('El ID del rol debe ser un número entero positivo');
+        }
+
+
+        const user = await userModel.getUserById(id);
+        if (!user) {
+            throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
+        }
+
+        if (user.rol_id === Number(rol_id)) {
+            throw ApiError.conflict('El rol del usuario es la misma');
+        }
+
+        return await userModel.updateUserArea(id, rol_id);
+    }
 
     // Cambiar el área asignada al usuario
     async updateUserArea(id, area_id) {
@@ -389,7 +436,7 @@ class UserService {
         return await userModel.updateUserArea(id, area_id);
     }
 
-    // Cambiar el estado del usuario (activar o desactivar)
+    // Cambiar el estado del usuario (habiilitar o deshabilitar)
     async updateUserState(id, nuevoEstadoUsuarioId) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
@@ -410,9 +457,9 @@ class UserService {
         return await userModel.updateUserState(id, Number(nuevoEstadoUsuarioId));
     }
 
-    // ============================ MÉTODO DELETE =============================
+    // ============================ MÉTODO PACTH =============================
 
-    // Eliminación lógica: cambiar estado_registro_id a 2 (eliminado)
+    // Eliminación lógica
     async removeUser(id) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
@@ -428,6 +475,25 @@ class UserService {
         }
 
         await userModel.deleteUser(id);
+    }
+
+    
+    // Restauracion lógica
+    async restoreUser(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
+        }
+
+        const user = await userModel.getUserById(id);
+        if (!user) {
+            throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
+        }
+
+        if (user.estado_registro_id === 1) {
+            throw ApiError.conflict('Usuario ya esta restaurado');
+        }
+
+        await userModel.restoreUser(id);
     }
 }
 

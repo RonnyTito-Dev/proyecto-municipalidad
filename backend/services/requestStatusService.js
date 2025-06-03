@@ -13,29 +13,11 @@ class RequestStatusService {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todos los estados de solicitud (sin importar estado)
+    // Obtener todos los estados de solicitud
     async getRequestStatuses() {
         const statuses = await requestStatusModel.getAllRequestStatuses();
         if (!statuses || statuses.length === 0) {
             throw ApiError.notFound('No hay estados de solicitud registrados');
-        }
-        return statuses;
-    }
-
-    // Obtener solo estados activos (estado_registro_id = 1)
-    async getActiveRequestStatuses() {
-        const statuses = await requestStatusModel.getActiveRequestStatuses();
-        if (!statuses || statuses.length === 0) {
-            throw ApiError.notFound('No hay estados de solicitud activos registrados');
-        }
-        return statuses;
-    }
-
-    // Obtener solo estados inactivos (estado_registro_id = 2)
-    async getInactiveRequestStatuses() {
-        const statuses = await requestStatusModel.getInactiveRequestStatuses();
-        if (!statuses || statuses.length === 0) {
-            throw ApiError.notFound('No hay estados de solicitud inactivos registrados');
         }
         return statuses;
     }
@@ -123,21 +105,6 @@ class RequestStatusService {
         return await requestStatusModel.updateRequestStatus(id, { nombre, descripcion });
     }
 
-    // ============================= MÉTODOS DELETE ==============================
-
-    // Eliminación lógica: actualizar estado_registro_id a 2 (inactivo)
-    async removeRequestStatus(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del estado de solicitud debe ser un número entero positivo');
-        }
-
-        const existing = await requestStatusModel.getRequestStatusById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Estado de solicitud con ID ${id} no encontrado`);
-        }
-
-        await requestStatusModel.deleteRequestStatus(id);
-    }
 }
 
 // Exportar una instancia del servicio

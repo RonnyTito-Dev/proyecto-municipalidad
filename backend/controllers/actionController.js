@@ -92,15 +92,27 @@ class ActionController {
         }
     }
 
-    // ========================================== METODO DELETE ==========================================
+    // ========================================== METODO PATCH ==========================================
 
-    // Método para eliminar una acción (eliminación lógica)
+    // Método para eliminar una acción
     async deleteAction(req, res, next) {
         const { id } = req.params;
 
         try {
             await actionService.removeAction(id);
-            res.sendStatus(204); // Sin contenido
+            res.sendStatus(204);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Método para restaurar una acción
+    async restoreAction(req, res, next) {
+        const { id } = req.params;
+
+        try {
+            await actionService.restoreAction(id);
+            res.sendStatus(204);
         } catch (error) {
             next(error);
         }

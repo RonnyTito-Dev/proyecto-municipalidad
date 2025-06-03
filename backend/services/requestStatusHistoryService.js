@@ -13,7 +13,7 @@ class RequestStatusHistoryService {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todo el historial de cambios de estado (sin filtro)
+    // Obtener todo el historial de cambios de estado
     async getStatusHistories() {
         const histories = await requestStatusHistoryModel.getAllStatusHistories();
         if (!histories || histories.length === 0) {
@@ -22,25 +22,7 @@ class RequestStatusHistoryService {
         return histories;
     }
 
-    // Obtener solo historial activo (estado_registro_id = 1)
-    async getActiveStatusHistories() {
-        const histories = await requestStatusHistoryModel.getActiveStatusHistories();
-        if (!histories || histories.length === 0) {
-            throw ApiError.notFound('No hay historial de estados de solicitud activos registrados');
-        }
-        return histories;
-    }
-
-    // Obtener solo historial eliminado (estado_registro_id = 2)
-    async getDeletedStatusHistories() {
-        const histories = await requestStatusHistoryModel.getDeletedStatusHistories();
-        if (!histories || histories.length === 0) {
-            throw ApiError.notFound('No hay historial de estados de solicitud eliminados registrados');
-        }
-        return histories;
-    }
-
-    // Obtener historial por código de solicitud
+    // Obtener historial por código de solicitud - crudo
     async getStatusHistoriesByRequestCode(codigo_solicitud) {
         if (!codigo_solicitud) {
             throw ApiError.badRequest('El código de la solicitud es requerido');
@@ -51,6 +33,21 @@ class RequestStatusHistoryService {
 
         if (!histories || histories.length === 0) {
             throw ApiError.notFound(`No se encontró historial para la solicitud con código "${codigo}"`);
+        }
+        return histories;
+    }
+
+    // Obtener historial por código de sequimiento - detallado
+    async getStatusHistoriesByTrackingCode(codigo_seguimiento) {
+        if (!codigo_seguimiento) {
+            throw ApiError.badRequest('El código de seguimiento es requerido');
+        }
+
+        const codigo = formatter.trim(codigo_seguimiento);
+        const histories = await requestStatusHistoryModel.getStatusHistoriesByTrackingCode(codigo);
+
+        if (!histories || histories.length === 0) {
+            throw ApiError.notFound(`No se encontró historial para la solicitud con código de seguimiento "${codigo}"`);
         }
         return histories;
     }
@@ -75,8 +72,9 @@ class RequestStatusHistoryService {
         const {
             codigo_solicitud,
             estado_solicitud_id,
-            area_id,
-            observaciones,
+            area_actual_id,
+            area_destino_id,
+            notas,
             usuario_id
         } = data;
 
@@ -86,97 +84,24 @@ class RequestStatusHistoryService {
         if (!estado_solicitud_id || isNaN(estado_solicitud_id) || Number(estado_solicitud_id) <= 0 || !Number.isInteger(Number(estado_solicitud_id))) {
             throw ApiError.badRequest('El ID del estado de solicitud debe ser un número entero positivo');
         }
-        if (!area_id || isNaN(area_id) || Number(area_id) <= 0 || !Number.isInteger(Number(area_id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
-        if (!usuario_id || isNaN(usuario_id) || Number(usuario_id) <= 0 || !Number.isInteger(Number(usuario_id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
 
         const codigo = formatter.toUpperCase(codigo_solicitud);
-        const observ = formatter.trim(observaciones);
+        const estado_solicitud = estado_solicitud_id;
+        const area_actual = area_actual_id ? area_actual_id : null;
+        const area_destino = area_destino_id ? area_destino_id : null;
+        const nota = formatter.trim(notas);
+        const usuario = usuario_id ? usuario_id : null;
 
         return await requestStatusHistoryModel.createStatusHistory({
             codigo_solicitud: codigo,
-            estado_solicitud_id: Number(estado_solicitud_id),
-            area_id: Number(area_id),
-            observaciones: observ,
-            usuario_id: Number(usuario_id),
+            estado_solicitud_id: Number(estado_solicitud),
+            area_actual_id: Number(area_actual),
+            area_destino_id: Number(area_destino),
+            notas: nota,
+            usuario_id: Number(usuario),
         });
     }
 
-    // ============================= MÉTODOS PUT ==============================
-
-    // Actualizar un registro del historial por ID
-    async modifyStatusHistory(id, data) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del historial debe ser un número entero positivo');
-        }
-
-        const {
-            codigo_solicitud,
-            estado_solicitud_id,
-            area_id,
-            observaciones,
-            usuario_id
-        } = data;
-
-        if (!codigo_solicitud) {
-            throw ApiError.badRequest('El código de la solicitud es requerido');
-        }
-        if (!estado_solicitud_id || isNaN(estado_solicitud_id) || Number(estado_solicitud_id) <= 0 || !Number.isInteger(Number(estado_solicitud_id))) {
-            throw ApiError.badRequest('El ID del estado de solicitud debe ser un número entero positivo');
-        }
-        if (!area_id || isNaN(area_id) || Number(area_id) <= 0 || !Number.isInteger(Number(area_id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
-        if (!usuario_id || isNaN(usuario_id) || Number(usuario_id) <= 0 || !Number.isInteger(Number(usuario_id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
-
-        const existing = await requestStatusHistoryModel.getStatusHistoryById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Historial de estado con ID ${id} no encontrado`);
-        }
-
-        const codigo = formatter.toUpperCase(codigo_solicitud);
-        const observ = formatter.trim(observaciones);
-
-        // Validar si no hay cambios
-        if (
-            codigo === existing.codigo_solicitud &&
-            Number(estado_solicitud_id) === existing.estado_solicitud_id &&
-            Number(area_id) === existing.area_id &&
-            observ === existing.observaciones &&
-            Number(usuario_id) === existing.usuario_id
-        ) {
-            throw ApiError.conflict('No se detectaron cambios para actualizar');
-        }
-
-        return await requestStatusHistoryModel.updateStatusHistory(id, {
-            codigo_solicitud: codigo,
-            estado_solicitud_id: Number(estado_solicitud_id),
-            area_id: Number(area_id),
-            observaciones: observ,
-            usuario_id: Number(usuario_id),
-        });
-    }
-
-    // ============================= MÉTODOS DELETE ==============================
-
-    // Eliminación lógica: actualizar estado_registro_id a 2 (eliminado)
-    async removeStatusHistory(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del historial debe ser un número entero positivo');
-        }
-
-        const existing = await requestStatusHistoryModel.getStatusHistoryById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Historial de estado con ID ${id} no encontrado`);
-        }
-
-        await requestStatusHistoryModel.deleteStatusHistory(id);
-    }
 }
 
 // Exportar una instancia del servicio

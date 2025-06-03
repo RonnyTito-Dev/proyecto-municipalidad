@@ -17,26 +17,6 @@ class AttachmentController {
         }
     }
 
-    // Método para obtener solo archivos adjuntos activos
-    async getActiveAttachments(req, res, next) {
-        try {
-            const attachments = await attachmentService.getActiveAttachments();
-            res.json(attachments);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Método para obtener solo archivos adjuntos eliminados
-    async getDeletedAttachments(req, res, next) {
-        try {
-            const attachments = await attachmentService.getDeletedAttachments();
-            res.json(attachments);
-        } catch (error) {
-            next(error);
-        }
-    }
-
     // Método para obtener un archivo adjunto por ID
     async getAttachmentById(req, res, next) {
         const { id } = req.params;
@@ -87,34 +67,6 @@ class AttachmentController {
         }
     }
 
-    // ========================================== MÉTODO PUT ==========================================
-
-    // Método para actualizar un archivo adjunto por ID
-    async updateAttachment(req, res, next) {
-        const { id } = req.params;
-        const { descripcion, url_archivo } = req.body;
-
-        try {
-            const updatedAttachment = await attachmentService.modifyAttachment(id, { descripcion, url_archivo });
-            res.json(updatedAttachment);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // ========================================== MÉTODO DELETE ==========================================
-
-    // Método para eliminar un archivo adjunto (eliminación lógica)
-    async deleteAttachment(req, res, next) {
-        const { id } = req.params;
-
-        try {
-            await attachmentService.removeAttachment(id);
-            res.sendStatus(204); // Sin contenido
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 // Exportamos la instancia de la clase

@@ -7,7 +7,7 @@ class UserSignatureController {
 
     // ========================================== MÉTODOS GET ==========================================
 
-    // Obtener todas las firmas (activas e inactivas)
+    // Obtener todas las firmas
     async getSignatures(req, res, next) {
         try {
             const signatures = await userSignatureService.getAllSignatures();
@@ -17,25 +17,6 @@ class UserSignatureController {
         }
     }
 
-    // Obtener solo firmas activas (estado_registro_id = 1)
-    async getActiveSignatures(req, res, next) {
-        try {
-            const signatures = await userSignatureService.getActiveSignatures();
-            res.json(signatures);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener solo firmas eliminadas (estado_registro_id = 2)
-    async getDeletedSignatures(req, res, next) {
-        try {
-            const signatures = await userSignatureService.getDeletedSignatures();
-            res.json(signatures);
-        } catch (error) {
-            next(error);
-        }
-    }
 
     // Obtener una firma por ID
     async getSignatureById(req, res, next) {
@@ -71,31 +52,6 @@ class UserSignatureController {
         }
     }
 
-    // ========================================== MÉTODO PUT ==========================================
-
-    // Actualizar la ruta de la firma de un usuario
-    async updateSignature(req, res, next) {
-        const { usuario_id } = req.params;
-        try {
-            const updatedSignature = await userSignatureService.modifySignature(usuario_id, req.body);
-            res.json(updatedSignature);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // ========================================== MÉTODO DELETE ==========================================
-
-    // Eliminar una firma (eliminación lógica: estado_registro_id = 2)
-    async deleteSignature(req, res, next) {
-        const { usuario_id } = req.params;
-        try {
-            await userSignatureService.removeSignatureByUserId(usuario_id);
-            res.sendStatus(204); // No Content
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 // Exportamos la instancia de la clase

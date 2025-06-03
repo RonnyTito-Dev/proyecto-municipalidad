@@ -86,13 +86,25 @@ class RequestChannelController {
         }
     }
 
-    // ========================================== MÉTODO DELETE ==========================================
+    // ========================================== MÉTODO PATCH ==========================================
 
-    // Eliminación lógica de un canal
+    // Eliminación lógica de un canal de solicitud
     async deleteRequestChannel(req, res, next) {
         const { id } = req.params;
         try {
             await requestChannelService.removeRequestChannel(id);
+            res.sendStatus(204);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    
+    // Restauracion lógica de un canal de solicitud
+    async restoreRequestChannel(req, res, next) {
+        const { id } = req.params;
+        try {
+            await requestChannelService.restoreRequestChannel(id);
             res.sendStatus(204);
         } catch (error) {
             next(error);

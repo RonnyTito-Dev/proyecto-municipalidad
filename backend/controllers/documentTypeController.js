@@ -86,13 +86,24 @@ class DocumentTypeController {
         }
     }
 
-    // ============================ MÉTODO DELETE ===========================
+    // ============================ MÉTODO PATCH ===========================
 
     // Eliminación lógica de un tipo de documento por ID
     async deleteDocumentType(req, res, next) {
         const { id } = req.params;
         try {
             await documentTypeService.removeDocumentType(id);
+            res.sendStatus(204); // Sin contenido
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Restauracion lógica de un tipo de documento por ID
+    async restoreDocumentType(req, res, next) {
+        const { id } = req.params;
+        try {
+            await documentTypeService.restoreDocumentType(id);
             res.sendStatus(204); // Sin contenido
         } catch (error) {
             next(error);

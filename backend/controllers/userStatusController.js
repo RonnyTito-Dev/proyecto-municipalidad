@@ -17,7 +17,7 @@ class UserStatusController {
         }
     }
 
-    // Obtener solo estados activos (estado_registro_id = 1)
+    // Obtener solo estados activos
     async getActiveStatuses(req, res, next) {
         try {
             const statuses = await userStatusService.getActiveStatuses();
@@ -27,7 +27,7 @@ class UserStatusController {
         }
     }
 
-    // Obtener solo estados eliminados (estado_registro_id = 2)
+    // Obtener solo estados eliminados
     async getDeletedStatuses(req, res, next) {
         try {
             const statuses = await userStatusService.getDeletedStatuses();
@@ -84,13 +84,24 @@ class UserStatusController {
         }
     }
 
-    // ========================================== MÉTODO DELETE ==========================================
+    // ========================================== MÉTODO PATCH ==========================================
 
     // Eliminar un estado (eliminación lógica)
     async deleteStatus(req, res, next) {
         const { id } = req.params;
         try {
             await userStatusService.removeStatus(id);
+            res.sendStatus(204); // No Content
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Restaurar un estado (eliminación lógica)
+    async restoreStatus(req, res, next) {
+        const { id } = req.params;
+        try {
+            await userStatusService.restoreStatus(id);
             res.sendStatus(204); // No Content
         } catch (error) {
             next(error);

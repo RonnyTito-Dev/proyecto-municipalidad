@@ -9,25 +9,19 @@ class AttachmentModel {
 
     // Obtener todos los archivos adjuntos
     async getAllAttachments() {
-        const result = await db.query('SELECT * FROM adjuntos ORDER BY fecha_subida DESC');
-        return result.rows;
-    }
-
-    // Obtener solo adjuntos activos (estado_registro_id = 1)
-    async getActiveAttachments() {
         const result = await db.query(
-            'SELECT * FROM adjuntos WHERE estado_registro_id = 1 ORDER BY fecha_subida DESC'
+            `SELECT
+                id,
+                codigo_solicitud,
+                descripcion,
+                url_archivo,
+                TO_CHAR(fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion
+            FROM adjuntos
+            ORDER BY id DESC`
         );
         return result.rows;
     }
 
-    // Obtener solo adjuntos eliminados (estado_registro_id = 2)
-    async getDeletedAttachments() {
-        const result = await db.query(
-            'SELECT * FROM adjuntos WHERE estado_registro_id = 2 ORDER BY fecha_subida DESC'
-        );
-        return result.rows;
-    }
 
     // Obtener archivo adjunto por ID
     async getAttachmentById(id) {
@@ -44,7 +38,7 @@ class AttachmentModel {
     // Obtener archivos adjuntos por código de solicitud
     async getAttachmentsByRequestCode(codigo_solicitud) {
         const result = await db.query(
-            'SELECT * FROM adjuntos WHERE codigo_solicitud = $1 AND estado_registro_id = 1 ORDER BY fecha_subida DESC',
+            'SELECT * FROM adjuntos WHERE codigo_solicitud = $1 ORDER BY id DESC',
             [codigo_solicitud]
         );
         return result.rows;
@@ -63,32 +57,6 @@ class AttachmentModel {
         return result.rows[0];
     }
 
-    // ============================= MÉTODO PUT ==============================
-
-    // Actualizar un archivo adjunto por ID
-    async updateAttachment(id, { descripcion, url_archivo }) {
-        const result = await db.query(
-            `UPDATE adjuntos
-             SET descripcion = $1,
-                 url_archivo = $2
-             WHERE id = $3
-             RETURNING *`,
-            [descripcion, url_archivo, id]
-        );
-        return result.rows[0];
-    }
-
-    // ============================ MÉTODO DELETE =============================
-
-    // Eliminado lógico: cambiar estado_registro_id a 2
-    async deleteAttachment(id) {
-        await db.query(
-            `UPDATE adjuntos
-             SET estado_registro_id = 2
-             WHERE id = $1`,
-            [id]
-        );
-    }
 }
 
 // Exportamos una instancia del modelo

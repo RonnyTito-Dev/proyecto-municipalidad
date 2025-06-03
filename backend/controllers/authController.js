@@ -42,7 +42,7 @@ class AuthController {
 
     // ========================================== MÉTODO GET ==========================================
 
-    // Obtener información del usuario actual (requiere middleware de autenticación)
+    // Obtener información del usuario actual
     async getCurrentUser(req, res, next) {
         try {
             // El middleware de autenticación inyecta el usuario en req.user
@@ -51,10 +51,11 @@ class AuthController {
             res.status(200).json({
                 success: true,
                 user: {
-                    id_usuario: user.id_usuario,
+                    usuario_id: user.usuario_id,
                     nombres_usuario: user.nombres_usuario,
                     email_usuario: user.email_usuario,
                     pin_usuario: user.pin_usuario,
+                    rol_usuario_id: user.rol_usuario_id,
                     area_usuario_id: user.area_usuario_id,
                     estado_usuario_id: user.estado_usuario_id
                 }

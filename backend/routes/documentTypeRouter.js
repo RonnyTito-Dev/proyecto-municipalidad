@@ -42,10 +42,13 @@ router.post('/', documentTypeController.createDocumentType);
 // Actualizar un tipo de documento por ID
 router.put('/:id', documentTypeController.updateDocumentType);
 
-// ======================================= SOLICITUD DELETE =======================================
+// ======================================= SOLICITUD PATCH =======================================
 
 // Eliminación lógica de un tipo de documento
-router.delete('/:id', documentTypeController.deleteDocumentType);
+router.patch('/:id/eliminar', documentTypeController.deleteDocumentType);
+
+// Restauracion lógica de un tipo de documento
+router.patch('/:id/restaurar', documentTypeController.restoreDocumentType);
 
 // Exportamos el router
 module.exports = router;

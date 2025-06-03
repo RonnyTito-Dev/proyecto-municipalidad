@@ -20,12 +20,6 @@ router.use(authMiddleware);
 // Obtener todos los documentos
 router.get('/', documentController.getDocuments);
 
-// Obtener solo los documentos activos
-router.get('/activos', documentController.getActiveDocuments);
-
-// Obtener solo los documentos eliminados
-router.get('/eliminados', documentController.getDeletedDocuments);
-
 // Obtener un documento por ID
 router.get('/:id', documentController.getDocumentById);
 
@@ -43,15 +37,6 @@ router.get('/tipo/:tipoDocumentoId', documentController.getDocumentsByDocumentTy
 // Crear un nuevo documento
 router.post('/', documentController.createDocument);
 
-// ======================================= SOLICITUD PUT =======================================
-
-// Actualizar un documento existente
-router.put('/:id', documentController.updateDocument);
-
-// ======================================= SOLICITUD DELETE =======================================
-
-// Eliminar un documento
-router.delete('/:id', documentController.deleteDocument);
 
 // Exportamos el router
 module.exports = router;

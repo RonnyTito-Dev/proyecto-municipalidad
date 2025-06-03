@@ -119,7 +119,7 @@ class RequestChannelService {
         return await requestChannelModel.updateRequestChannel(id, { nombre, descripcion });
     }
 
-    // ============================= MÉTODO DELETE ==============================
+    // ============================= MÉTODO PATCH ==============================
 
     // Eliminación lógica
     async removeRequestChannel(id) {
@@ -133,6 +133,21 @@ class RequestChannelService {
         }
 
         await requestChannelModel.deleteRequestChannel(id);
+    }
+
+
+    // Restauracion lógica
+    async restoreRequestChannel(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del canal debe ser un número entero positivo');
+        }
+
+        const existing = await requestChannelModel.getRequestChannelById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Canal con ID ${id} no encontrado`);
+        }
+
+        await requestChannelModel.restoreRequestChannel(id);
     }
 }
 

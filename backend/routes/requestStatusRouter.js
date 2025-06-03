@@ -20,12 +20,6 @@ router.use(authMiddleware);
 // Obtener todos los estados de solicitud
 router.get('/', requestStatusController.getRequestStatuses);
 
-// Obtener solo estados activos
-router.get('/activos', requestStatusController.getActiveRequestStatuses);
-
-// Obtener solo estados inactivos
-router.get('/inactivos', requestStatusController.getInactiveRequestStatuses);
-
 // Obtener un estado por ID
 router.get('/:id', requestStatusController.getRequestStatusById);
 
@@ -42,10 +36,6 @@ router.post('/', requestStatusController.createRequestStatus);
 // Actualizar un estado
 router.put('/:id', requestStatusController.updateRequestStatus);
 
-// ======================================= SOLICITUD DELETE =======================================
-
-// Eliminación lógica de un estado
-router.delete('/:id', requestStatusController.deleteRequestStatus);
 
 // Exportamos el router
 module.exports = router;

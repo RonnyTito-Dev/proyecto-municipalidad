@@ -1,38 +1,27 @@
-// recordStatusModel.js
+// registerStatusModel.js
 
 // Importamos la DB
 const db = require('../config/db');
 
-class RecordStatusModel {
+class RegisterStatusModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todos los estados de registro (sin filtrar)
-    async getAllStatuses() {
+    // Obtener todos los estados de registro
+    async getAllRegisterStatus() {
         const result = await db.query(
-            'SELECT * FROM estados_registro ORDER BY id'
-        );
-        return result.rows;
-    }
-
-    // Obtener estados activos (estado_registro_id = 1)
-    async getActiveStatuses() {
-        const result = await db.query(
-            'SELECT * FROM estados_registro WHERE estado_registro_id = 1 ORDER BY id'
-        );
-        return result.rows;
-    }
-
-    // Obtener estados eliminados (estado_registro_id = 2)
-    async getDeletedStatuses() {
-        const result = await db.query(
-            'SELECT * FROM estados_registro WHERE estado_registro_id = 2 ORDER BY id'
+            `SELECT
+                id,
+                nombre,
+                descripcion,
+                TO_CHAR(fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion
+            FROM estados_registro`
         );
         return result.rows;
     }
 
     // Obtener un estado de registro por ID
-    async getStatusById(id) {
+    async getRegisterStatusById(id) {
         const result = await db.query(
             'SELECT * FROM estados_registro WHERE id = $1',
             [id]
@@ -41,7 +30,7 @@ class RecordStatusModel {
     }
 
     // Obtener un estado de registro por nombre
-    async getStatusByName(nombre) {
+    async getRegisterStatusByName(nombre) {
         const result = await db.query(
             'SELECT * FROM estados_registro WHERE nombre = $1',
             [nombre]
@@ -52,7 +41,7 @@ class RecordStatusModel {
     // ============================= MÉTODO POST ==============================
 
     // Crear un nuevo estado de registro
-    async createStatus({ nombre, descripcion }) {
+    async createRegisterStatus({ nombre, descripcion }) {
         const result = await db.query(
             `INSERT INTO estados_registro (nombre, descripcion)
              VALUES ($1, $2)
@@ -65,7 +54,7 @@ class RecordStatusModel {
     // ============================= MÉTODO PUT ==============================
 
     // Actualizar nombre y descripción de un estado de registro
-    async updateStatus(id, { nombre, descripcion }) {
+    async updateRegisterStatus(id, { nombre, descripcion }) {
         const result = await db.query(
             `UPDATE estados_registro
              SET nombre = $1, descripcion = $2
@@ -76,18 +65,7 @@ class RecordStatusModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE ============================
-
-    // Eliminación lógica: cambiar estado_registro_id a 2 (eliminado)
-    async deleteStatus(id) {
-        await db.query(
-            `UPDATE estados_registro
-             SET estado_registro_id = 2
-             WHERE id = $1`,
-            [id]
-        );
-    }
 }
 
 // Exportamos una instancia del modelo
-module.exports = new RecordStatusModel();
+module.exports = new RegisterStatusModel();

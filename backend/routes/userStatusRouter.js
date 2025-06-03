@@ -42,10 +42,13 @@ router.post('/', userStatusController.createStatus);
 // Actualizar un estado de usuario
 router.put('/:id', userStatusController.updateStatus);
 
-// ======================================= SOLICITUD DELETE =======================================
+// ======================================= SOLICITUD PATCH =======================================
 
 // Eliminar un estado (eliminación lógica)
-router.delete('/:id', userStatusController.deleteStatus);
+router.patch('/:id/eliminar', userStatusController.deleteStatus);
+
+// Restaurar un estado (restauracion lógica)
+router.patch('/:id/restaurar', userStatusController.restoreStatus);
 
 // Exportamos el router
 module.exports = router;

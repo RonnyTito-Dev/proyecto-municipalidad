@@ -83,8 +83,7 @@ CREATE TABLE estados_solicitud (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,  -- Title case + trim
     descripcion VARCHAR(120),                    -- trim
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla de canales de origen de la solicitud (Web - UTSD)
@@ -115,7 +114,7 @@ CREATE TABLE solicitudes (
     -- Datos de la solicitud
     codigo_seguimiento VARCHAR(50) NOT NULL UNIQUE,     -- Upper case + trim
     area_sugerida_id INT NOT NULL REFERENCES areas(id),
-    area_asignada_id INT REFERENCES areas(id),
+    area_asignada_id INT DEFAULT 3 REFERENCES areas(id), -- Por defecto area 3 mesa de partes
     revision_manual BOOLEAN NOT NULL DEFAULT FALSE,
     asunto VARCHAR(200) NOT NULL,                        -- Title case + trim
     contenido TEXT NOT NULL,                             -- trim
@@ -130,8 +129,7 @@ CREATE TABLE solicitudes (
     estado_solicitud_id INT NOT NULL DEFAULT 1 REFERENCES estados_solicitud(id),
 
     -- Flujo interno
-    usuario_id INT REFERENCES usuarios(id) ON DELETE SET NULL,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    usuario_id INT REFERENCES usuarios(id) ON DELETE SET NULL
 );
 
 -- Tabla de adjuntos (imágenes o PDFs adicionales del ciudadano)
@@ -140,8 +138,7 @@ CREATE TABLE adjuntos (
     codigo_solicitud VARCHAR(50) REFERENCES solicitudes(codigo_solicitud), -- Upper Case + trim
     descripcion VARCHAR(200) NOT NULL,          -- trim
     url_archivo VARCHAR(200) NOT NULL UNIQUE,  -- trim
-    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tipos de documentos (Solicitud, Respuesta)
@@ -153,14 +150,13 @@ CREATE TABLE tipos_documento (
     estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
 );
 
--- Documentos generados vinculados a una solicitud
+-- Documentos generados (pdf) vinculados a una solicitud
 CREATE TABLE documentos (
     id SERIAL PRIMARY KEY,
     codigo_solicitud VARCHAR(50) REFERENCES solicitudes(codigo_solicitud), -- Upper Case + trim
     tipo_documento_id INT REFERENCES tipos_documento(id),
     url_documento VARCHAR(200) NOT NULL UNIQUE,       -- trim
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Historial de cambios de estado de una solicitud
@@ -173,8 +169,7 @@ CREATE TABLE historial_estados_solicitud (
     area_destino_id INT REFERENCES areas(id),
     notas VARCHAR(150), -- trim
     usuario_id INT REFERENCES usuarios(id),
-    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Notificaciones enviadas al ciudadano
@@ -183,8 +178,7 @@ CREATE TABLE notificaciones (
     codigo_solicitud VARCHAR(50) REFERENCES solicitudes(codigo_solicitud), -- Upper case + trim
     canal_notificacion_id INT NOT NULL REFERENCES canales_notificacion(id),
     mensaje VARCHAR(300) NOT NULL,                         -- trim
-    fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabla de logs para registrar acciones en el sistema
@@ -195,6 +189,5 @@ CREATE TABLE logs (
     area_id INT REFERENCES areas(id),
     tabla_afectada VARCHAR(50) NOT NULL,         -- Lower case + trim
     accion_id INT NOT NULL REFERENCES acciones(id),
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

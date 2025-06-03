@@ -7,30 +7,10 @@ class RequestStatusController {
 
     // ========================================== MÉTODOS GET ==========================================
 
-    // Obtener todos los estados de solicitud (sin importar estado)
+    // Obtener todos los estados de solicitud
     async getRequestStatuses(req, res, next) {
         try {
             const statuses = await requestStatusService.getRequestStatuses();
-            res.json(statuses);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener solo estados activos
-    async getActiveRequestStatuses(req, res, next) {
-        try {
-            const statuses = await requestStatusService.getActiveRequestStatuses();
-            res.json(statuses);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener solo estados inactivos
-    async getInactiveRequestStatuses(req, res, next) {
-        try {
-            const statuses = await requestStatusService.getInactiveRequestStatuses();
             res.json(statuses);
         } catch (error) {
             next(error);
@@ -90,19 +70,6 @@ class RequestStatusController {
         }
     }
 
-    // ========================================== MÉTODO DELETE ==========================================
-
-    // Eliminación lógica de un estado
-    async deleteRequestStatus(req, res, next) {
-        const { id } = req.params;
-
-        try {
-            await requestStatusService.removeRequestStatus(id);
-            res.sendStatus(204); // Sin contenido
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 // Exportamos la instancia del controller

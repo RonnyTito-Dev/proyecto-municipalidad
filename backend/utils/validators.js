@@ -3,8 +3,6 @@
 // Importamos a zod
 const { z } = require('zod');
 
-
-
 // =================================== Title Case ===================================
 const toTitleCase = (str) => str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
 

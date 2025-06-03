@@ -9,25 +9,17 @@ class RequestStatusModel {
 
     // Obtener todos los estados de solicitud
     async getAllRequestStatuses() {
-        const result = await db.query('SELECT * FROM estados_solicitud ORDER BY id');
-        return result.rows;
-    }
-
-    // Obtener estados activos (estado_registro_id = 1)
-    async getActiveRequestStatuses() {
         const result = await db.query(
-            'SELECT * FROM estados_solicitud WHERE estado_registro_id = 1 ORDER BY id'
+            `SELECT
+                id,
+                nombre,
+                descripcion,
+                TO_CHAR(fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion
+            FROM estados_solicitud`
         );
         return result.rows;
     }
 
-    // Obtener estados inactivos (estado_registro_id = 2)
-    async getInactiveRequestStatuses() {
-        const result = await db.query(
-            'SELECT * FROM estados_solicitud WHERE estado_registro_id = 2 ORDER BY id'
-        );
-        return result.rows;
-    }
 
     // Obtener un estado por ID
     async getRequestStatusById(id) {
@@ -67,7 +59,7 @@ class RequestStatusModel {
         const result = await db.query(
             `UPDATE estados_solicitud
              SET nombre = $1,
-                 descripcion = $2
+                descripcion = $2
              WHERE id = $3
              RETURNING *`,
             [nombre, descripcion, id]
@@ -75,17 +67,6 @@ class RequestStatusModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE ============================
-
-    // Eliminar estado por ID (eliminación física)
-    async deleteRequestStatus(id) {
-        await db.query(
-            `UPDATE estados_solicitud
-             SET estado_registro_id = 2
-             WHERE id = $1`,
-            [id]
-        );
-    }
 }
 
 // Exportamos una instancia del modelo

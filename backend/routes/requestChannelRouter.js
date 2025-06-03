@@ -42,10 +42,13 @@ router.post('/', requestChannelController.createRequestChannel);
 // Actualizar un canal de solicitud existente
 router.put('/:id', requestChannelController.updateRequestChannel);
 
-// ======================================= SOLICITUD DELETE =======================================
+// ======================================= SOLICITUD PATCH =======================================
 
 // Eliminación lógica de un canal de solicitud
-router.delete('/:id', requestChannelController.deleteRequestChannel);
+router.patch('/:id/eliminar', requestChannelController.deleteRequestChannel);
+
+// Restauracion lógica de un canal de solicitud
+router.patch('/:id/restaurar', requestChannelController.restoreRequestChannel);
 
 // Exportamos el router
 module.exports = router;

@@ -66,10 +66,11 @@ class AuthService {
         // Generar token JWT
         const token = jwt.sign(
             {
-                id_usuario: user.id,
+                usuario_id: user.id,
                 nombres_usuario: user.nombres,
                 email_usuario: user.email,
-                pin_usuario: user.pin,
+                pin_usuario: user.pin_seguridad,
+                rol_usuario_id: user.rol_id,
                 area_usuario_id: user.area_id,
                 estado_usuario_id: user.estado_usuario_id,
             },

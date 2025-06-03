@@ -7,63 +7,162 @@ class RequestModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las solicitudes ordenadas por id
+    // Obtener todas las solicitudes - solo areas 1 y 2
     async getAllRequests() {
-        const result = await db.query('SELECT * FROM solicitudes ORDER BY id');
-        return result.rows;
-    }
-
-
-    // Obtener todas las solicitudes activas (estado_registro_id = 1)
-    async getActiveRequests() {
         const result = await db.query(
-            'SELECT * FROM solicitudes WHERE estado_registro_id = 1 ORDER BY id'
+            `SELECT
+                so.id,
+                so.codigo_solicitud,
+                so.nombres_ciudadano,
+                so.apellidos_ciudadano,
+                ar.nombre AS area_asignada,
+                so.asunto,
+                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
+                es.nombre AS estado_solicitud
+            FROM solicitudes so
+            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
+            LEFT JOIN areas ar ON so.area_asignada_id = ar.id
+            ORDER BY so.id DESC`
         );
         return result.rows;
     }
 
 
-    // Obtener solicitudes eliminadas
-    async getDeletedRequests() {
+    // Obtener solicitudes todas las solicitudes filtrado por area 
+    async getAllRequestsByArea(area_id){
         const result = await db.query(
-            'SELECT * FROM solicitudes WHERE estado_registro_id = 2 ORDER BY id'
+            `SELECT
+                so.id,
+                so.codigo_solicitud,
+                so.nombres_ciudadano,
+                so.apellidos_ciudadano,
+                ar.nombre AS area,
+                so.asunto,
+                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
+                es.nombre AS estado_solicitud
+            FROM solicitudes so
+            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
+            LEFT JOIN areas ar ON so.area_asignada_id = ar.id
+            WHERE so.area_asignada_id = $1
+            ORDER BY so.id DESC`,
+            [area_id]
         );
         return result.rows;
     }
 
-
-
-    // Obtener todas las solicitudes filtradas por estado de solicitud
-    async getAllRequestsByStatus(estado_solicitud_id) {
+    // Obtener solicitudes todas las solicitudes filtrado por estado solicitud
+    async getAllRequestsByStatus(estado_solicitud_id){
         const result = await db.query(
-            'SELECT * FROM solicitudes WHERE estado_solicitud_id = $1 ORDER BY id DESC',
+            `SELECT
+                so.id,
+                so.codigo_solicitud,
+                so.nombres_ciudadano,
+                so.apellidos_ciudadano,
+                ar.nombre AS area,
+                so.asunto,
+                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
+                es.nombre AS estado_solicitud
+            FROM solicitudes so
+            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
+            LEFT JOIN areas ar ON so.area_asignada_id = ar.id
+            WHERE so.estado_solicitud_id = $1
+            ORDER BY so.id DESC`,
             [estado_solicitud_id]
         );
         return result.rows;
     }
 
-    // Obtener solicitud por ID
-    async getRequestById(id) {
+    // Obtener todas las solicitudes filtradas por areas y estados
+    async getAllRequestsByAreaAndStatus(area_id, estado_solicitud_id) {
         const result = await db.query(
-            'SELECT * FROM solicitudes WHERE id = $1',
-            [id]
+            `SELECT
+                so.id,
+                so.codigo_solicitud,
+                so.nombres_ciudadano,
+                so.apellidos_ciudadano,
+                ar.nombre AS area,
+                so.asunto,
+                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
+                es.nombre AS estado_solicitud
+            FROM solicitudes so
+            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
+            LEFT JOIN areas ar ON so.area_asignada_id = ar.id
+            WHERE so.area_asignada_id = $1
+            AND so.estado_solicitud_id = $2
+            ORDER BY so.id DESC`,
+            [area_id, estado_solicitud_id]
         );
-        return result.rows[0];
+        return result.rows;
     }
 
-    // Obtener solicitud por código de solicitud
+
+    // Obtener solicitud por código de solicitud - detallado
     async getRequestByCode(codigo_solicitud) {
         const result = await db.query(
-            'SELECT * FROM solicitudes WHERE codigo_solicitud = $1',
+            `SELECT
+                so.id,
+                so.codigo_solicitud,
+                so.nombres_ciudadano,
+                so.apellidos_ciudadano,
+                so.dni_ciudadano,
+                so.direccion_ciudadano,
+                so.sector_ciudadano,
+                so.email_ciudadano,
+                so.celular_ciudadano,
+                so.codigo_seguimiento,
+                ars.nombre AS area_sugerida,
+                ara.nombre AS area_asignada,
+                so.asunto,
+                so.contenido,
+                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY HH24:MI:SS') AS fecha_envio,
+                cn.nombre AS canal_notificacion,
+                cs.nombre AS canal_solicitud,
+                es.nombre AS estado_solicitud,
+                us.nombres || us.apellidos AS usuario_tramite
+            FROM solicitudes so
+            INNER JOIN areas ars ON so.area_sugerida_id = ars.id
+            LEFT JOIN areas ara ON so.area_asignada_id = ara.id
+            INNER JOIN canales_notificacion cn ON so.canal_notificacion_id = cn.id
+            INNER JOIN canales_solicitud cs ON so.canal_solicitud_id =  cs.id
+            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
+            LEFT JOIN usuarios us ON so.usuario_id = us.id
+            WHERE so.codigo_solicitud = $1`,
             [codigo_solicitud]
         );
         return result.rows[0];
     }
 
-    // Obtener solicitud por código de seguimiento
+    // Obtener solicitud por código de seguimiento - detallado
     async getRequestByTrackingCode(codigo_seguimiento) {
         const result = await db.query(
-            'SELECT * FROM solicitudes WHERE codigo_seguimiento = $1',
+            `SELECT
+                so.id,
+                so.codigo_solicitud,
+                so.nombres_ciudadano,
+                so.apellidos_ciudadano,
+                so.dni_ciudadano,
+                so.direccion_ciudadano,
+                so.sector_ciudadano,
+                so.email_ciudadano,
+                so.celular_ciudadano,
+                so.codigo_seguimiento,
+                ars.nombre AS area_sugerida,
+                ara.nombre AS area_asignada,
+                so.asunto,
+                so.contenido,
+                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY HH24:MI:SS') AS fecha_envio,
+                cn.nombre AS canal_notificacion,
+                cs.nombre AS canal_solicitud,
+                es.nombre AS estado_solicitud,
+                us.nombres || us.apellidos AS usuario_tramite
+            FROM solicitudes so
+            INNER JOIN areas ars ON so.area_sugerida_id = ars.id
+            LEFT JOIN areas ara ON so.area_asignada_id = ara.id
+            INNER JOIN canales_notificacion cn ON so.canal_notificacion_id = cn.id
+            INNER JOIN canales_solicitud cs ON so.canal_solicitud_id =  cs.id
+            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
+            LEFT JOIN usuarios us ON so.usuario_id = us.id
+            WHERE so.codigo_seguimiento = $1`,
             [codigo_seguimiento]
         );
         return result.rows[0];
@@ -72,48 +171,23 @@ class RequestModel {
     // ============================= MÉTODO POST =============================
 
     // Crear una nueva solicitud con todos los datos requeridos
-    async createRequest({ codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano,
-        sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, asunto,
-        solicitud, pin, canal_notificacion_id, canal_solicitud_id, usuario_id
+    async createRequest({ codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano,      direccion_ciudadano, sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, area_sugerida_id, asunto, contenido, pin_seguridad, canal_notificacion_id, canal_solicitud_id, usuario_id
     }) {
         const result = await db.query(
             `INSERT INTO solicitudes (
-                codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano,
-                sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, asunto,
-                solicitud, pin, canal_notificacion_id, canal_solicitud_id, usuario_id
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *`,
+                codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano,
+                direccion_ciudadano, sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento,
+                area_sugerida_id, asunto, contenido, pin_seguridad, canal_notificacion_id, canal_solicitud_id, usuario_id
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING *`,
             [ codigo_solicitud, nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano,
-                sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, asunto,
-                solicitud, pin, canal_notificacion_id, canal_solicitud_id, usuario_id
+                sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, area_sugerida_id, asunto,
+                contenido, pin_seguridad, canal_notificacion_id, canal_solicitud_id, usuario_id
             ]
         );
         return result.rows[0];
     }
 
     // ============================= MÉTODO PUT ==============================
-
-    // Actualizar datos completos de una solicitud por código de solicitud (no se usa)
-    async updateRequest(codigo_solicitud, { nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano,
-                                            sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, asunto,
-                                            solicitud, pin, fecha_ingreso, canal_notificacion_id ,canal_solicitud_id,
-                                            estado_solicitud_id, area_actual_id, usuario_id, estado_registro_id
-    }) {
-        const result = await db.query(
-            `UPDATE solicitudes SET nombres_ciudadano = $1, apellidos_ciudadano = $2, dni_ciudadano = $3, direccion_ciudadano = $4,
-                                sector_ciudadano = $5, email_ciudadano = $6, celular_ciudadano = $7, codigo_seguimiento = $8, asunto = $9,
-                                solicitud = $10, pin = $11, fecha_ingreso = $12, canal_notificacion_id = $13, canal_solicitud_id = $14,
-                                estado_solicitud_id = $15, area_actual_id = $16, usuario_id = $17, estado_registro_id = $18
-             WHERE codigo_solicitud = $19 RETURNING *`,
-
-            [ nombres_ciudadano, apellidos_ciudadano, dni_ciudadano, direccion_ciudadano,
-                sector_ciudadano, email_ciudadano, celular_ciudadano, codigo_seguimiento, asunto,
-                solicitud, pin, fecha_ingreso, canal_notificacion_id, canal_solicitud_id,
-                estado_solicitud_id, area_actual_id, usuario_id, estado_registro_id, 
-                codigo_solicitud
-            ]
-        );
-        return result.rows[0];
-    }
 
     // Actualizar estado de solicitud por código de solicitud
     async updateStatusRequest(codigo_solicitud, estado_solicitud_id) {
@@ -127,42 +201,31 @@ class RequestModel {
         return result.rows[0];
     }
 
-    // Actualizar área actual de la solicitud por código de solicitud
-    async updateAreaRequest(codigo_solicitud, area_actual_id) {
+    // Asignar un area a la solicitud
+    async updateAsignAreaRequest(codigo_solicitud, area_asignada_id) {
         const result = await db.query(
             `UPDATE solicitudes
-             SET area_actual_id = $1
+             SET area_asignada_id = $1
              WHERE codigo_solicitud = $2
              RETURNING *`,
-            [area_actual_id, codigo_solicitud]
+            [area_asignada_id, codigo_solicitud]
         );
         return result.rows[0];
     }
 
-    // Actualizar estado de solicitud y área actual por código de solicitud
-    async updateStatusAndArea(codigo_solicitud, estado_solicitud_id, area_actual_id) {
+    // Asignar un area y cambiar su estado de solicitud
+    async updateStatusAndAreaAsign(codigo_solicitud, estado_solicitud_id, area_asignada_id) {
         const result = await db.query(
             `UPDATE solicitudes
              SET estado_solicitud_id = $1,
-                 area_actual_id = $2
+                 area_asignada_id = $2
              WHERE codigo_solicitud = $3
              RETURNING *`,
-            [estado_solicitud_id, area_actual_id, codigo_solicitud]
+            [estado_solicitud_id, area_asignada_id, codigo_solicitud]
         );
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE =============================
-
-    // Eliminación lógica: actualizar estado_registro_id a 2 (solicitud eliminada)
-    async deleteRequest(codigo_solicitud) {
-        await db.query(
-            `UPDATE solicitudes
-             SET estado_registro_id = 2
-             WHERE codigo_solicitud = $1`,
-            [codigo_solicitud]
-        );
-    }
 }
 
 // Exportamos una instancia del modelo

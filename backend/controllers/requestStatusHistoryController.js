@@ -7,7 +7,7 @@ class RequestStatusHistoryController {
 
     // ============================== MÉTODOS GET ==============================
 
-    // Obtener todo el historial de cambios de estado (sin filtro)
+    // Obtener todo el historial de cambios de estado
     async getStatusHistories(req, res, next) {
         try {
             const histories = await requestStatusHistoryService.getStatusHistories();
@@ -17,27 +17,7 @@ class RequestStatusHistoryController {
         }
     }
 
-    // Obtener solo historial activo
-    async getActiveStatusHistories(req, res, next) {
-        try {
-            const histories = await requestStatusHistoryService.getActiveStatusHistories();
-            res.json(histories);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener solo historial eliminado
-    async getDeletedStatusHistories(req, res, next) {
-        try {
-            const histories = await requestStatusHistoryService.getDeletedStatusHistories();
-            res.json(histories);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // Obtener historial por código de solicitud
+    // Obtener historial por código de solicitud - crudo
     async getStatusHistoriesByRequestCode(req, res, next) {
         const { codigo_solicitud } = req.params;
 
@@ -49,7 +29,19 @@ class RequestStatusHistoryController {
         }
     }
 
-    // Obtener un registro del historial por ID
+    // Obtener historial por código de seguimiento - detallado
+    async getStatusHistoriesByTrackingCode(req, res, next) {
+        const { codigo_seguimiento } = req.params;
+
+        try {
+            const histories = await requestStatusHistoryService.getStatusHistoriesByTrackingCode(codigo_seguimiento);
+            res.json(histories);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Obtener un registro del historial por ID - crudo
     async getStatusHistoryById(req, res, next) {
         const { id } = req.params;
 
@@ -68,8 +60,9 @@ class RequestStatusHistoryController {
         const {
             codigo_solicitud,
             estado_solicitud_id,
-            area_id,
-            observaciones,
+            area_actual_id,
+            area_destino_id,
+            notas,
             usuario_id
         } = req.body;
 
@@ -77,8 +70,9 @@ class RequestStatusHistoryController {
             const newHistory = await requestStatusHistoryService.addStatusHistory({
                 codigo_solicitud,
                 estado_solicitud_id,
-                area_id,
-                observaciones,
+                area_actual_id,
+                area_destino_id,
+                notas,
                 usuario_id
             });
             res.status(201).json(newHistory);
@@ -87,46 +81,6 @@ class RequestStatusHistoryController {
         }
     }
 
-    // ============================== MÉTODO PUT ==============================
-
-    // Actualizar un registro del historial por ID
-    async updateStatusHistory(req, res, next) {
-        const { id } = req.params;
-        const {
-            codigo_solicitud,
-            estado_solicitud_id,
-            area_id,
-            observaciones,
-            usuario_id
-        } = req.body;
-
-        try {
-            const updatedHistory = await requestStatusHistoryService.modifyStatusHistory(id, {
-                codigo_solicitud,
-                estado_solicitud_id,
-                area_id,
-                observaciones,
-                usuario_id
-            });
-            res.json(updatedHistory);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    // ============================== MÉTODO DELETE ==============================
-
-    // Eliminación lógica de un registro del historial
-    async deleteStatusHistory(req, res, next) {
-        const { id } = req.params;
-
-        try {
-            await requestStatusHistoryService.removeStatusHistory(id);
-            res.sendStatus(204); // No Content
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 // Exportamos una instancia del controller

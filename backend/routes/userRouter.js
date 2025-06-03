@@ -17,8 +17,14 @@ router.use(authMiddleware);
 
 // ======================================= SOLICITUD GET =======================================
 
-// Obtener todos los usuarios (activos e inactivos)
+// Obtener todos los usuarios
 router.get('/', userController.getUsers);
+
+// Obtener solo usuarios habilitados
+router.get('/activos', userController.getEnabledUsers);
+
+// Obtener solo usuarios deshabilitados
+router.get('/eliminados', userController.getDisabledUsers);
 
 // Obtener solo usuarios activos
 router.get('/activos', userController.getActiveUsers);
@@ -54,16 +60,22 @@ router.put('/:id/password', userController.updateUserPassword);
 // Actualizar PIN del usuario
 router.put('/:id/pin', userController.updateUserPin);
 
+// Cambiar el rol al usuario
+router.put('/:id/rol', userController.updateUserRol);
+
 // Cambiar el área asignada al usuario
 router.put('/:id/area', userController.updateUserArea);
 
-// Cambiar el estado del usuario
+// Cambiar el estado del usuario habilitado | deshabilitado
 router.put('/:id/estado', userController.updateUserState);
 
-// ======================================= SOLICITUD DELETE =======================================
+// ======================================= SOLICITUD PATCH =======================================
 
 // Eliminar un usuario (eliminación lógica)
-router.delete('/:id', userController.deleteUser);
+router.patch('/:id/eliminar', userController.deleteUser);
+
+// Restaurar un usuario (restauracion lógica)
+router.patch('/:id/restaurar', userController.restoreUser);
 
 // Exportamos el router
 module.exports = router;

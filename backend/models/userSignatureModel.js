@@ -7,26 +7,22 @@ class UserSignatureModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las firmas de usuario (sin filtro)
+    // Obtener todas las firmas de usuario
     async getAllSignatures() {
         const result = await db.query(
-            'SELECT * FROM firmas_usuario ORDER BY id'
-        );
-        return result.rows;
-    }
-
-    // Obtener firmas activas (estado_registro_id = 1)
-    async getActiveSignatures() {
-        const result = await db.query(
-            'SELECT * FROM firmas_usuario WHERE estado_registro_id = 1 ORDER BY id'
-        );
-        return result.rows;
-    }
-
-    // Obtener firmas eliminadas (estado_registro_id = 2)
-    async getDeletedSignatures() {
-        const result = await db.query(
-            'SELECT * FROM firmas_usuario WHERE estado_registro_id = 2 ORDER BY id'
+            `SELECT
+                fu.id,
+                us.nombres AS nombres,
+                us.apellidos AS apellidos,
+                us.email AS email,
+                fu.ruta_firma,
+                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM firmas_usuarios fu
+            INNER JOIN usuarios us ON fu.usuario_id = us.id
+            INNER JOIN estados_registro er ON fu.estado_registro_id = er.id
+            ORDER BY fu.id DESC`
         );
         return result.rows;
     }
@@ -40,10 +36,10 @@ class UserSignatureModel {
         return result.rows[0];
     }
 
-    // Obtener una firma por usuario_id
+    // Obtener firmas por usuario_id
     async getSignatureByUserId(usuario_id) {
         const result = await db.query(
-            'SELECT * FROM firmas_usuario WHERE usuario_id = $1',
+            'SELECT * FROM firmas_usuario WHERE usuario_id = $1 AND estado_registro_id = 1 ORDER BY id DESC',
             [usuario_id]
         );
         return result.rows[0];
@@ -51,7 +47,7 @@ class UserSignatureModel {
 
     // ============================= MÉTODO POST =============================
 
-    // Crear una nueva firma para un usuario (única por usuario)
+    // Agregar una nueva firma
     async createSignature({ usuario_id, ruta_firma }) {
         const result = await db.query(
             `INSERT INTO firmas_usuario (usuario_id, ruta_firma)
@@ -60,32 +56,6 @@ class UserSignatureModel {
             [usuario_id, ruta_firma]
         );
         return result.rows[0];
-    }
-
-    // ============================= MÉTODO PUT ==============================
-
-    // Actualizar la ruta de la firma para un usuario
-    async updateSignature(usuario_id, ruta_firma) {
-        const result = await db.query(
-            `UPDATE firmas_usuario
-       SET ruta_firma = $1, fecha_carga = CURRENT_TIMESTAMP
-       WHERE usuario_id = $2
-       RETURNING *`,
-            [ruta_firma, usuario_id]
-        );
-        return result.rows[0];
-    }
-
-    // ============================ MÉTODO DELETE =============================
-
-    // Eliminación lógica: actualizar estado_registro_id a 2 para marcar firma como eliminada
-    async deleteSignatureByUserId(usuario_id) {
-        await db.query(
-            `UPDATE firmas_usuario
-       SET estado_registro_id = 2
-       WHERE usuario_id = $1`,
-            [usuario_id]
-        );
     }
 }
 

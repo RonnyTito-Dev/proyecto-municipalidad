@@ -23,11 +23,13 @@ const documentTypeRouter = require('./routes/documentTypeRouter');      // Enrut
 const logRouter = require('./routes/logRouter');                        // Enrutador de logs
 const notificationChannelRouter = require('./routes/notificationChannelRouter');        // Enrutador de canal de notificaciones
 const notificationRouter = require('./routes/notificationRouter');      // Enrutador de notificaciones
+const registerStatusRouter = require('./routes/registerStatusRouter');  // Enrutador de los estados de registro
 const reniecRouter = require('./routes/reniecRouter');                  // Enrutador de API reniec
 const requestChannelRouter = require('./routes/requestChannelRouter');  // Enrutador de canal de solicitud
 const requestRouter = require('./routes/requestRouter');                // Enrutador de solicitudes
 const requestStatusHistoryRouter = require('./routes/requestStatusHistoryRouter');      // Enrutador de historial de estados de solicitud
 const requestStatusRouter = require('./routes/requestStatusRouter');    // Enrutador de estados de solicitud
+const roleRouter = require('./routes/roleRouter');                      // Enrutador de roles
 const userRouter = require('./routes/userRouter');                      // Enrutador de usuarios
 const userSignatureRouter = require('./routes/userSignatureRouter');    // Enrutador de firmas de usuarios
 const userStatusRouter = require('./routes/userStatusRouter');          // Enrutador de estados de usuarios
@@ -69,11 +71,13 @@ class Server {
         this.app.use('/logs', logRouter);                       // Ruta para logs
         this.app.use('/canales-notificacion', notificationChannelRouter);                   // Ruta para canales de notificacion
         this.app.use('/notificaciones', notificationRouter);    // Ruta para notificaciones
+        this.app.use('/estados-registro', registerStatusRouter);                            // Ruta para estados de registro
         this.app.use('/reniec', reniecRouter);                  // Ruta pare la API
         this.app.use('/canales-solicitud', requestChannelRouter);                           // Ruta para canales de solicitud
         this.app.use('/solicitudes', requestRouter);            // Ruta para solicitudes
         this.app.use('/historial-estados-solicitud', requestStatusHistoryRouter);           // Ruta para historial de estados de solicitud
         this.app.use('/estados-solicitud', requestStatusRouter);                            // Ruta para estados de solicitud
+        this.app.use('/roles', roleRouter);                     // Ruta para roles
         this.app.use('/usuarios', userRouter);                  // Ruta para usuarios
         this.app.use('/firmas-usuario', userSignatureRouter);   // Ruta para firmas de usuarios
         this.app.use('/estados-usuario', userStatusRouter);     // Ruta para estados de usuario

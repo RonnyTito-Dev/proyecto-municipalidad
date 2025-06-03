@@ -7,7 +7,7 @@ class UserController {
 
     // ========================================== MÉTODOS GET ==========================================
 
-    // Obtener todos los usuarios (activos e inactivos)
+    // Obtener todos los usuarios
     async getUsers(req, res, next) {
         try {
             const users = await userService.getAllUsers();
@@ -17,7 +17,28 @@ class UserController {
         }
     }
 
-    // Obtener solo usuarios activos (estado_registro_id = 1)
+
+    // Obtener solo usuarios habilitados para el sistema
+    async getEnabledUsers(req, res, next) {
+        try {
+            const users = await userService.getEnabledUsers();
+            res.json(users);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Obtener solo usuarios deshabilitados para el sistema
+    async getDisabledUsers(req, res, next) {
+        try {
+            const users = await userService.getDisabledUsers();
+            res.json(users);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Obtener solo usuarios no eliminados (activos)
     async getActiveUsers(req, res, next) {
         try {
             const users = await userService.getActiveUsers();
@@ -27,7 +48,7 @@ class UserController {
         }
     }
 
-    // Obtener solo usuarios eliminados (estado_registro_id = 2)
+    // Obtener solo usuarios eliminados
     async getDeletedUsers(req, res, next) {
         try {
             const users = await userService.getDeletedUsers();
@@ -128,6 +149,18 @@ class UserController {
         }
     }
 
+    // Cambiar el rol al usuario
+    async updateUserRol(req, res, next) {
+        const { id } = req.params;
+        const { rol_id } = req.body;
+        try {
+            const result = await userService.updateUserRol(id, rol_id);
+            res.json(result);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     // Cambiar el área asignada al usuario
     async updateUserArea(req, res, next) {
         const { id } = req.params;
@@ -152,13 +185,24 @@ class UserController {
         }
     }
 
-    // ========================================== MÉTODO DELETE ==========================================
+    // ========================================== MÉTODO PATCH ==========================================
 
-    // Eliminar un usuario (eliminación lógica: estado_registro_id = 2)
+    // Eliminar un usuario logica
     async deleteUser(req, res, next) {
         const { id } = req.params;
         try {
             await userService.removeUser(id);
+            res.sendStatus(204); // No Content
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Restaurar un usuario logica
+    async restoreUser(req, res, next) {
+        const { id } = req.params;
+        try {
+            await userService.restoreUser(id);
             res.sendStatus(204); // No Content
         } catch (error) {
             next(error);

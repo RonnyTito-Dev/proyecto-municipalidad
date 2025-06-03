@@ -7,26 +7,52 @@ class UserStatusModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todos los estados (sin filtrar por estado_registro_id)
+    // Obtener todos los estados
     async getAllStatuses() {
         const result = await db.query(
-            'SELECT * FROM estados_usuario ORDER BY id'
+            `SELECT
+                eu.id,
+                eu.nombre,
+                eu.descripcion,
+                TO_CHAR(eu.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM estados_usuario eu
+            INNER JOIN estados_registro er ON eu.estado_registro_id = er.id`
         );
         return result.rows;
     }
 
-    // Obtener estados activos (estado_registro_id = 1)
+    // Obtener estados activos
     async getActiveStatuses() {
         const result = await db.query(
-            'SELECT * FROM estados_usuario WHERE estado_registro_id = 1 ORDER BY id'
+            `SELECT
+                eu.id,
+                eu.nombre,
+                eu.descripcion,
+                TO_CHAR(eu.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM estados_usuario eu
+            INNER JOIN estados_registro er ON eu.estado_registro_id = er.id
+            WHERE eu.estado_registro_id = 1`
         );
         return result.rows;
     }
 
-    // Obtener estados eliminados (estado_registro_id = 2)
+    // Obtener estados eliminados
     async getDeletedStatuses() {
         const result = await db.query(
-            'SELECT * FROM estados_usuario WHERE estado_registro_id = 2 ORDER BY id'
+            `SELECT
+                eu.id,
+                eu.nombre,
+                eu.descripcion,
+                TO_CHAR(eu.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM estados_usuario eu
+            INNER JOIN estados_registro er ON eu.estado_registro_id = er.id
+            WHERE eu.estado_registro_id = 2`
         );
         return result.rows;
     }
@@ -76,13 +102,23 @@ class UserStatusModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE ============================
+    // ============================ MÉTODO PATCH ============================
 
-    // Eliminación lógica: cambiar estado_registro_id a 2 (eliminado)
+    // Eliminación lógica
     async deleteStatus(id) {
         await db.query(
             `UPDATE estados_usuario
        SET estado_registro_id = 2
+       WHERE id = $1`,
+            [id]
+        );
+    }
+
+    // Restauracion lógica
+    async restoreStatus(id) {
+        await db.query(
+            `UPDATE estados_usuario
+       SET estado_registro_id = 1
        WHERE id = $1`,
             [id]
         );

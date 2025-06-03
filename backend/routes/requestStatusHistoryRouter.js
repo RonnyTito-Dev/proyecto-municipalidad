@@ -17,17 +17,14 @@ router.use(authMiddleware);
 
 // ============================== SOLICITUD GET ==============================
 
-// Obtener todo el historial de cambios de estado (sin filtro)
+// Obtener todo el historial de cambios de estado - detallado
 router.get('/', requestStatusHistoryController.getStatusHistories);
-
-// Obtener solo historial activo
-router.get('/activos', requestStatusHistoryController.getActiveStatusHistories);
-
-// Obtener solo historial eliminado
-router.get('/eliminados', requestStatusHistoryController.getDeletedStatusHistories);
 
 // Obtener historial por código de solicitud
 router.get('/solicitud/:codigo_solicitud', requestStatusHistoryController.getStatusHistoriesByRequestCode);
+
+// Obtener historial por código de seguimiento
+router.get('/seguimiento/:codigo_seguimiento', requestStatusHistoryController.getStatusHistoriesByTrackingCode);
 
 // Obtener un registro del historial por ID
 router.get('/:id', requestStatusHistoryController.getStatusHistoryById);
@@ -37,15 +34,6 @@ router.get('/:id', requestStatusHistoryController.getStatusHistoryById);
 // Crear un nuevo registro en historial de estados
 router.post('/', requestStatusHistoryController.createStatusHistory);
 
-// ============================== SOLICITUD PUT ==============================
-
-// Actualizar un registro del historial por ID
-router.put('/:id', requestStatusHistoryController.updateStatusHistory);
-
-// ============================== SOLICITUD DELETE ==============================
-
-// Eliminación lógica de un registro del historial
-router.delete('/:id', requestStatusHistoryController.deleteStatusHistory);
 
 // Exportamos el router
 module.exports = router;

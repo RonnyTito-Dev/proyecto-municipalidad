@@ -22,7 +22,7 @@ class UserStatusService {
         return statuses;
     }
 
-    // Obtener solo estados activos (estado_registro_id = 1)
+    // Obtener solo estados activos
     async getActiveStatuses() {
         const statuses = await userStatusModel.getActiveStatuses();
         if (!statuses || statuses.length === 0) {
@@ -31,7 +31,7 @@ class UserStatusService {
         return statuses;
     }
 
-    // Obtener solo estados eliminados (estado_registro_id = 2)
+    // Obtener solo estados eliminados
     async getDeletedStatuses() {
         const statuses = await userStatusModel.getDeletedStatuses();
         if (!statuses || statuses.length === 0) {
@@ -123,9 +123,9 @@ class UserStatusService {
         return await userStatusModel.updateStatus(id, { nombre, descripcion });
     }
 
-    // ============================ MÉTODOS DELETE ==============================
+    // ============================ MÉTODOS PATCH ==============================
 
-    // Eliminación lógica: actualizar estado_registro_id a 2
+    // Eliminación lógica
     async removeStatus(id) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID del estado debe ser un número entero positivo');
@@ -137,6 +137,20 @@ class UserStatusService {
         }
 
         await userStatusModel.deleteStatus(id);
+    }
+    
+    // Restauracion lógica
+    async restoreStatus(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del estado debe ser un número entero positivo');
+        }
+
+        const existing = await userStatusModel.getStatusById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Estado con ID ${id} no encontrado`);
+        }
+
+        await userStatusModel.restoreStatus(id);
     }
 }
 

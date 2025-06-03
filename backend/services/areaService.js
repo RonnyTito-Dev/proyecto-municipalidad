@@ -55,7 +55,7 @@ class AreaService {
 
     // Obtener un área por nombre
     async getAreaByName(nombre) {
-        if (!nombre) {
+        if (!nombre.trim()) {
             throw ApiError.badRequest('El nombre del área es requerido');
         }
 
@@ -123,9 +123,9 @@ class AreaService {
         return await areaModel.updateArea(id, { nombre, descripcion });
     }
 
-    // ============================= MÉTODOS DELETE ==============================
+    // ============================= MÉTODOS PATCH ==============================
 
-    // Eliminado lógico: actualizar estado_registro_id a 2
+    // Eliminado lógica
     async removeArea(id) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
@@ -138,6 +138,21 @@ class AreaService {
 
         await areaModel.deleteArea(id);
     }
+
+    // Restauracion lógica
+    async restoreArea(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
+        }
+
+        const existing = await areaModel.getAreaById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Área con ID ${id} no encontrado`);
+        }
+
+        await areaModel.restoreArea(id);
+    }
+
 }
 
 // Exportar una instancia del modelo

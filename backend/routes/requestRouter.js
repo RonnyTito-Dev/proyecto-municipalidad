@@ -12,6 +12,13 @@ const requestController = require('../controllers/requestController');
 // Importamos el middleware auth
 const authMiddleware = require('../middleware/authMiddleware');
 
+
+// ========================== RUTA PÚBLICA PARA CIUDADANOS ==========================
+
+// Obtener solicitud por código de seguimiento y PIN (ciudadano sin autenticación)
+router.post('/seguimiento-ciudadano', requestController.getRequestByTrackingCodeAndPin);
+
+
 // Proteger las rutas
 router.use(authMiddleware);
 
@@ -20,17 +27,11 @@ router.use(authMiddleware);
 // Obtener todas las solicitudes (sin importar estado)
 router.get('/', requestController.getAllRequests);
 
-// Obtener solo solicitudes activas
-router.get('/activos', requestController.getActiveRequests);
-
-// Obtener solo solicitudes eliminadas (lógicas)
-router.get('/eliminados', requestController.getDeletedRequests);
-
 // Obtener solicitud por código de solicitud
-router.get('/codigo/:codigo', requestController.getRequestByCodigoSolicitud);
+router.get('/solicitud/:codigo', requestController.getRequestByRequestCode);
 
 // Obtener solicitud por código de seguimiento
-router.get('/seguimiento/:codigo', requestController.getRequestByCodigoSeguimiento);
+router.get('/seguimiento/:codigo', requestController.getRequestByTrackingCode);
 
 // ======================================= SOLICITUD POST =======================================
 
@@ -43,15 +44,11 @@ router.post('/', requestController.createRequest);
 router.put('/estado/:codigo', requestController.updateRequestStatus);
 
 // Actualizar solo el área actual de una solicitud
-router.put('/area/:codigo', requestController.updateRequestArea);
+router.put('/area/:codigo', requestController.updateRequestAsignArea);
 
 // Actualizar estado y área de una solicitud
-router.put('/estado-area/:codigo', requestController.updateRequestStatusAndArea);
+router.put('/estado-area/:codigo', requestController.updateRequestStatusAndAsignArea);
 
-// ======================================= SOLICITUD DELETE =======================================
-
-// Eliminación lógica de una solicitud
-router.delete('/:codigo', requestController.deleteRequest);
 
 // Exportamos el router
 module.exports = router;

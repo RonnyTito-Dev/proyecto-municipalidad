@@ -17,14 +17,8 @@ router.use(authMiddleware);
 
 // ======================================= RUTAS GET =======================================
 
-// Obtener todas las notificaciones (activas e inactivas)
+// Obtener todas las notificaciones
 router.get('/', notificationController.getAllNotifications);
-
-// Obtener solo notificaciones activas
-router.get('/active', notificationController.getActiveNotifications);
-
-// Obtener solo notificaciones eliminadas
-router.get('/deleted', notificationController.getDeletedNotifications);
 
 // Obtener notificaciones por código de solicitud
 router.get('/codigo/:codigo', notificationController.getNotificationsByRequestCode);
@@ -37,15 +31,6 @@ router.get('/:id', notificationController.getNotificationById);
 // Crear una nueva notificación
 router.post('/', notificationController.createNotification);
 
-// ======================================= RUTA PUT =======================================
-
-// Actualizar una notificación existente
-router.put('/:id', notificationController.updateNotification);
-
-// ======================================= RUTA DELETE =======================================
-
-// Eliminar (lógicamente) una notificación
-router.delete('/:id', notificationController.deleteNotification);
 
 // Exportamos el router
 module.exports = router;

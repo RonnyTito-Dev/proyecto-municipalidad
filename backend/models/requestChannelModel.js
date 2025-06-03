@@ -7,24 +7,52 @@ class RequestChannelModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todos los canales de solicitud (sin filtro)
+    // Obtener todos los canales de solicitud
     async getAllRequestChannels() {
-        const result = await db.query('SELECT * FROM canales_solicitud ORDER BY id');
-        return result.rows;
-    }
-
-    // Obtener canales de solicitud activos (estado_registro_id = 1)
-    async getActiveRequestChannels() {
         const result = await db.query(
-            'SELECT * FROM canales_solicitud WHERE estado_registro_id = 1 ORDER BY id'
+            `SELECT
+                cs.id,
+                cs.nombre,
+                cs.descripcion,
+                TO_CHAR(cs.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM canales_solicitud cs
+            INNER JOIN estados_registro er ON cs.estado_registro_id = er.id`
         );
         return result.rows;
     }
 
-    // Obtener canales de solicitud eliminados (estado_registro_id = 2)
+    // Obtener canales de solicitud activos
+    async getActiveRequestChannels() {
+        const result = await db.query(
+            `SELECT
+                cs.id,
+                cs.nombre,
+                cs.descripcion,
+                TO_CHAR(cs.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM canales_solicitud cs
+            INNER JOIN estados_registro er ON cs.estado_registro_id = er.id
+          	WHERE cs.estado_registro_id = 1`
+        );
+        return result.rows;
+    }
+
+    // Obtener canales de solicitud eliminados
     async getDeletedRequestChannels() {
         const result = await db.query(
-            'SELECT * FROM canales_solicitud WHERE estado_registro_id = 2 ORDER BY id'
+            `SELECT
+                cs.id,
+                cs.nombre,
+                cs.descripcion,
+                TO_CHAR(cs.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM canales_solicitud cs
+            INNER JOIN estados_registro er ON cs.estado_registro_id = er.id
+          	WHERE cs.estado_registro_id = 2`
         );
         return result.rows;
     }
@@ -74,13 +102,23 @@ class RequestChannelModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE =============================
+    // ============================ MÉTODO PATCH =============================
 
-    // Eliminación lógica: actualizar estado_registro_id a 2
+    // Eliminación lógica
     async deleteRequestChannel(id) {
         await db.query(
             `UPDATE canales_solicitud
              SET estado_registro_id = 2
+             WHERE id = $1`,
+            [id]
+        );
+    }
+
+    // Restauracion lógica
+    async restoreRequestChannel(id) {
+        await db.query(
+            `UPDATE canales_solicitud
+             SET estado_registro_id = 1
              WHERE id = $1`,
             [id]
         );

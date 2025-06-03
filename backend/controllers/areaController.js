@@ -7,7 +7,7 @@ class AreaController {
 
     // ========================================== METODOS GET ==========================================
 
-    // Método para obtener todas las áreas (sin importar estado)
+    // Método para obtener todas las áreas
     async getAreas(req, res, next) {
         try {
             const areas = await areaService.getAreas();
@@ -92,15 +92,27 @@ class AreaController {
         }
     }
 
-    // ========================================== METODO DELETE ==========================================
+    // ========================================== METODO PATCH ==========================================
 
-    // Método para eliminar un área (eliminación lógica)
+    // Método para eliminar
     async deleteArea(req, res, next) {
         const { id } = req.params;
 
         try {
             await areaService.removeArea(id);
-            res.sendStatus(204); // Sin contenido
+            res.sendStatus(204);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Método para Restaurar
+    async restoreArea(req, res, next) {
+        const { id } = req.params;
+
+        try {
+            await areaService.restoreArea(id);
+            res.sendStatus(204);
         } catch (error) {
             next(error);
         }

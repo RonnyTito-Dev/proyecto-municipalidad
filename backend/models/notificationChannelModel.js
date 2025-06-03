@@ -9,19 +9,51 @@ class NotificationChannelModel {
 
     // Obtener todos los canales
     async getAllChannels() {
-        const result = await db.query('SELECT * FROM canales_notificacion ORDER BY id');
+        const result = await db.query(
+            `SELECT
+                cn.id,
+                cn.nombre,
+                cn.descripcion,
+                TO_CHAR(cn.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM canales_notificacion cn
+            INNER JOIN estados_registro er ON cn.estado_registro_id = er.id`
+        );
         return result.rows;
     }
 
-    // Obtener solo canales activos (estado_registro_id = 1)
+    // Obtener solo canales activos
     async getActiveChannels() {
-        const result = await db.query('SELECT * FROM canales_notificacion WHERE estado_registro_id = 1 ORDER BY id');
+        const result = await db.query(
+            `SELECT
+                cn.id,
+                cn.nombre,
+                cn.descripcion,
+                TO_CHAR(cn.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM canales_notificacion cn
+            INNER JOIN estados_registro er ON cn.estado_registro_id = er.id
+            WHERE cn.estado_registro_id = 1`
+        );
         return result.rows;
     }
 
-    // Obtener solo canales eliminados (estado_registro_id = 2)
+    // Obtener solo canales eliminados
     async getDeletedChannels() {
-        const result = await db.query('SELECT * FROM canales_notificacion WHERE estado_registro_id = 2 ORDER BY id');
+        const result = await db.query(
+            `SELECT
+                cn.id,
+                cn.nombre,
+                cn.descripcion,
+                TO_CHAR(cn.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM canales_notificacion cn
+            INNER JOIN estados_registro er ON cn.estado_registro_id = er.id
+            WHERE cn.estado_registro_id = 2`
+        );
         return result.rows;
     }
 
@@ -65,13 +97,23 @@ class NotificationChannelModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE =============================
+    // ============================ MÉTODO PATCH =============================
 
-    // Eliminado lógico: cambia estado_registro_id a 2
+    // Eliminado lógica
     async deleteChannel(id) {
         await db.query(
             `UPDATE canales_notificacion
              SET estado_registro_id = 2
+             WHERE id = $1`,
+            [id]
+        );
+    }
+
+    // Restauracion lógica
+    async restoreChannel(id) {
+        await db.query(
+            `UPDATE canales_notificacion
+             SET estado_registro_id = 1
              WHERE id = $1`,
             [id]
         );

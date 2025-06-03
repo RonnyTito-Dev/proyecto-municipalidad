@@ -22,7 +22,7 @@ class DocumentTypeService {
         return types;
     }
 
-    // Obtener solo tipos de documento activos (estado_registro_id = 1)
+    // Obtener solo tipos de documento activos
     async getActiveDocumentTypes() {
         const types = await documentTypeModel.getActiveDocumentTypes();
         if (!types || types.length === 0) {
@@ -31,7 +31,7 @@ class DocumentTypeService {
         return types;
     }
 
-    // Obtener solo tipos de documento eliminados (estado_registro_id = 2)
+    // Obtener solo tipos de documento eliminados
     async getDeletedDocumentTypes() {
         const types = await documentTypeModel.getDeletedDocumentTypes();
         if (!types || types.length === 0) {
@@ -123,9 +123,9 @@ class DocumentTypeService {
         return await documentTypeModel.updateDocumentType(id, { nombre, descripcion });
     }
 
-    // ============================= MÉTODOS DELETE ==============================
+    // ============================= MÉTODOS PATCH ==============================
 
-    // Eliminado lógico: cambiar estado_registro_id a 2
+    // Eliminado lógica
     async removeDocumentType(id) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID del tipo de documento debe ser un número entero positivo');
@@ -137,6 +137,21 @@ class DocumentTypeService {
         }
 
         await documentTypeModel.deleteDocumentType(id);
+    }
+
+
+    // Restauracion lógica
+    async restoreDocumentType(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del tipo de documento debe ser un número entero positivo');
+        }
+
+        const existing = await documentTypeModel.getDocumentTypeById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
+        }
+
+        await documentTypeModel.restoreDocumentType(id);
     }
 }
 

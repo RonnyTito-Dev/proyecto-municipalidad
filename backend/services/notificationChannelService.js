@@ -123,9 +123,9 @@ class NotificationChannelService {
         return await notificationChannelModel.updateChannel(id, { nombre, descripcion });
     }
 
-    // ============================= MÉTODO DELETE ==============================
+    // ============================= MÉTODO PATCH ==============================
 
-    // Eliminado lógico del canal
+    // Eliminacion Logica
     async removeChannel(id) {
         if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
             throw ApiError.badRequest('El ID del canal debe ser un número entero positivo');
@@ -137,6 +137,20 @@ class NotificationChannelService {
         }
 
         await notificationChannelModel.deleteChannel(id);
+    }
+
+    // Restauracion Logica
+    async restoreChannel(id) {
+        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
+            throw ApiError.badRequest('El ID del canal debe ser un número entero positivo');
+        }
+
+        const existing = await notificationChannelModel.getChannelById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Canal con ID ${id} no encontrado`);
+        }
+
+        await notificationChannelModel.restoreChannel(id);
     }
 }
 

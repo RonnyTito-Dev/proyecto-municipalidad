@@ -7,16 +7,35 @@ class AreaModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las áreas (sin importar estado)
+    // Obtener todas las áreas
     async getAllAreas() {
-        const result = await db.query('SELECT * FROM areas ORDER BY id');
+        const result = await db.query(
+            `SELECT
+                ar.id,
+                ar.nombre,
+                ar.descripcion,
+                TO_CHAR(ar.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM areas ar
+            INNER JOIN estados_registro er ON ar.estado_registro_id = er.id`
+        );
         return result.rows;
     }
 
     // Obtener solo áreas activas
     async getActiveAreas() {
         const result = await db.query(
-            'SELECT * FROM areas WHERE estado_registro_id = 1 ORDER BY id'
+            `SELECT
+                ar.id,
+                ar.nombre,
+                ar.descripcion,
+                TO_CHAR(ar.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM areas ar
+            INNER JOIN estados_registro er ON ar.estado_registro_id = er.id
+            WHERE ar.estado_registro_id = 1`
         );
         return result.rows;
     }
@@ -24,7 +43,16 @@ class AreaModel {
     // Obtener solo áreas eliminadas
     async getDeletedAreas() {
         const result = await db.query(
-            'SELECT * FROM areas WHERE estado_registro_id = 2 ORDER BY id'
+            `SELECT
+                ar.id,
+                ar.nombre,
+                ar.descripcion,
+                TO_CHAR(ar.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
+                er.id AS id_estado,
+                er.nombre AS estado
+            FROM areas ar
+            INNER JOIN estados_registro er ON ar.estado_registro_id = er.id
+            WHERE ar.estado_registro_id = 2`
         );
         return result.rows;
     }
@@ -68,13 +96,23 @@ class AreaModel {
         return result.rows[0];
     }
 
-    // ============================ MÉTODO DELETE ============================
+    // ============================ MÉTODO PATCH ============================
 
-    // Eliminado lógico: actualiza estado_registro_id a 2
+    // Eliminado lógica
     async deleteArea(id) {
         await db.query(
             `UPDATE areas
              SET estado_registro_id = 2
+             WHERE id = $1`,
+            [id]
+        );
+    }
+
+    // Restauracion lógica
+    async restoreArea(id) {
+        await db.query(
+            `UPDATE areas
+             SET estado_registro_id = 1
              WHERE id = $1`,
             [id]
         );
