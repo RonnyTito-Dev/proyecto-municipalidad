@@ -9,14 +9,8 @@ const formatter = require('../utils/textFormatter');
 // Importar los errores
 const ApiError = require('../errors/apiError');
 
-// Importar el bcrypt helper
-const { hashPin, comparePin } = require('../utils/bcryptHelper');
-
-// Importar configuracion muni
-const { muni_config: { muniRequestCode, muniTrackingCode } } = require('../config/config');
-
-// Importar el dateHelper
-const DTH = require('../utils/dateTimeHelper');
+// Importar el generador de codigos
+const codeGenerator = require('../utils/codeGenerator');
 
 class RequestService {
 
@@ -210,22 +204,19 @@ class RequestService {
 
         const area_sugerida_id = data.area_sugerida_id;
         const asunto = formatter.toTitleCase(data.asunto);
-        const solicitud = formatter.trim(data.contenido);
+        const contenido = formatter.trim(data.contenido);
         const pin_seguridad = await hashPin(formatter.trim(data.pin_seguridad)); // Hashear el pin
         const canal_notificacion_id = data.canal_notificacion_id;
 
         const canal_solicitud_id = data.id_usuario ? 2 : 1; // 2 = UTSD | 1 = Web
         const usuario_id = data.id_usuario ? data.id_usuario : NULL;  // Usuario quien registro 
 
-        // Capturar el fecha y hora actual
-        const fechaHoraCompacta = `${DTH.getCompactTime()}_${DTH.getCompactDate()}`;
+        const { requestCode, trackingCode } = codeGenerator.getRequestCodeAndTrackingCode(nombres_ciudadano, apellidos_ciudadano);
 
-        // Acortar los nombres
-        const nombreApellidoRecortado = `${nombres_ciudadano.substring(0, 2).toUpperCase()}-${apellidos_ciudadano.substring(0, 2).toUpperCase()}`
 
         // Crear codigo de solicitud y seguimiento
-        const codigo_solicitud = `${muniRequestCode}_${fechaHoraCompacta}_${nombreApellidoRecortado}`;
-        const codigo_seguimiento = `${muniTrackingCode}_${fechaHoraCompacta}_${nombreApellidoRecortado}`;
+        const codigo_solicitud = requestCode;
+        const codigo_seguimiento = trackingCode;
 
         // Validar que no exista código de solicitud duplicado
         const existingSolicitud = await requestModel.getRequestByCode(codigo_solicitud);

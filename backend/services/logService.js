@@ -3,8 +3,8 @@
 // Importar el modelo
 const logModel = require('../models/logModel');
 
-// Importar el formatter
-const formatter = require('../utils/textFormatter');
+// Importar el validador de Zod
+const { logsCreateValidator  } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -26,23 +26,16 @@ class LogService {
     // ============================= MÉTODO POST ==============================
 
     // Crear un nuevo log
-    async addLog(data) {
-        const { usuario_id, rol_id, area_id, tabla_afectada, accion_id } = data;
+    async addLog(rawData) {
 
-        if (!usuario_id || !rol_id || !area_id || !tabla_afectada || !accion_id || !descripcion) {
-            throw ApiError.badRequest('Todos los campos son obligatorios');
-        }
+        // Validar data
+        const { data, error } = logsCreateValidator.safeParse(rawData);
+        if(error) throw ApiError.badRequest(error.errors[0].message);
 
-        const tabla = formatter.toLowerCase(tabla_afectada);
-        const desc = formatter.trim(descripcion);
+        // Recuperar los datos
+        const { usuario_id, area_id, tabla_afectada, accion_id, descripcion } = data;
 
-        return await logModel.createLog({
-            usuario_id,
-            area_id,
-            tabla_afectada: tabla,
-            accion_id,
-            descripcion: desc,
-        });
+        return await logModel.createLog({ usuario_id, area_id, tabla_afectada, accion_id, descripcion });
     }
 
 

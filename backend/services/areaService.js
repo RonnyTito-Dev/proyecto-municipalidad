@@ -3,8 +3,8 @@
 // Importar el modelo
 const areaModel = require('../models/areaModel');
 
-// Importar el formatter
-const formatter = require('../utils/textFormatter');
+// Importar el validador de Zod
+const { schemaIdValidator, schemaNameValidator, simpleCreateValidator, simpleUpdatedValidator, schemaBooleanValidator } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -13,7 +13,7 @@ class AreaService {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las áreas (sin importar estado)
+    // Obtener todas las áreas
     async getAreas() {
         const areas = await areaModel.getAllAreas();
         if (!areas || areas.length === 0) {
@@ -41,10 +41,13 @@ class AreaService {
     }
 
     // Obtener un área por ID
-    async getAreaById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
+    async getAreaById(rawId) {
+        // Validar el id
+        const { data, error } = schemaIdValidator('Area').safeParse(Number(rawId));
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar id
+        const id = data;
 
         const area = await areaModel.getAreaById(id);
         if (!area) {
@@ -54,16 +57,19 @@ class AreaService {
     }
 
     // Obtener un área por nombre
-    async getAreaByName(nombre) {
-        if (!nombre.trim()) {
-            throw ApiError.badRequest('El nombre del área es requerido');
-        }
+    async getAreaByName(rawName) {
 
-        const nombreFormateado = formatter.toTitleCase(nombre);
-        const area = await areaModel.getAreaByName(nombreFormateado);
+        // Validar el nombre
+        const { data, error } = schemaNameValidator('Area').safeParse(rawName);
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar Nombre
+        const nombre = data;
+
+        const area = await areaModel.getAreaByName(nombre);
 
         if (!area) {
-            throw ApiError.notFound(`Área con nombre "${nombreFormateado}" no encontrado`);
+            throw ApiError.notFound(`Área con nombre "${nombre}" no encontrado`);
         }
         return area;
     }
@@ -71,13 +77,14 @@ class AreaService {
     // ============================= MÉTODOS POST ==============================
 
     // Crear una nueva área
-    async addArea(data) {
-        if (!data.nombre.trim()) {
-            throw ApiError.badRequest('El nombre del área es requerido');
-        }
+    async addArea(rawData) {
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Validar datos
+        const { data, error } = simpleCreateValidator('Area').safeParse(rawData);
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar datos
+        const { nombre, descripcion } = data;
 
         // Verificar si ya existe un área con ese nombre
         const existing = await areaModel.getAreaByName(nombre);
@@ -91,17 +98,15 @@ class AreaService {
     // ============================= MÉTODOS PUT ==============================
 
     // Actualizar un área
-    async modifyArea(id, data) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
+    async modifyArea(rawId, rawData) {
 
-        if (!data.nombre.trim()) {
-            throw ApiError.badRequest('El nombre del área es requerido');
-        }
+        // Validar datos
+        const { data, error } = simpleUpdatedValidator('Area').safeParse({ id: Number(rawId), ...rawData });
+        if(error) throw ApiError.badRequest(error.errors[0].message);
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Recuperamos datos
+        const { id, nombre, descripcion } = data;
+
 
         // Verificar si el área existe
         const existing = await areaModel.getAreaById(id);
@@ -123,13 +128,43 @@ class AreaService {
         return await areaModel.updateArea(id, { nombre, descripcion });
     }
 
+    // Cambiar visibilidad pública
+    async updateAreaVisibility(rawId, rawPublicArea) {
+
+        // Validar datos
+        const validatedId = schemaIdValidator('Area').safeParse(Number(rawId));
+        if(validatedId.error) throw ApiError.badRequest(validatedId.error.errors[0].message);
+
+        const validatedPublicArea = schemaBooleanValidator('Tipo de Area').safeParse(rawPublicArea);
+        if(validatedPublicArea.error) throw ApiError.badRequest(validatedPublicArea.error.errors[0].message);
+
+        // recuperar datos
+        const id = validatedId.data;
+        const area_publica = validatedPublicArea.data;
+
+        const existing = await areaModel.getAreaById(id);
+        if (!existing) {
+            throw ApiError.notFound(`Área con ID ${id} no encontrado`);
+        }
+
+        // Validar si no hay cambio
+        if (existing.area_publica === area_publica) {
+            throw ApiError.conflict(`El valor de "area_publica" ya es ${area_publica}`);
+        }
+
+        return await areaModel.updateAreaVisibility(id, area_publica);
+    }
+
+
     // ============================= MÉTODOS PATCH ==============================
 
     // Eliminado lógica
-    async removeArea(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
+    async removeArea(rawId) {
+        const { data, error } = schemaIdValidator('Area').safeParse(Number(rawId));
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // recuperar id
+        const id = data;
 
         const existing = await areaModel.getAreaById(id);
         if (!existing) {
@@ -140,10 +175,12 @@ class AreaService {
     }
 
     // Restauracion lógica
-    async restoreArea(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
+    async restoreArea(rawId) {
+        const { data, error } = schemaIdValidator('Area').safeParse(Number(rawId));
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // recuperar id
+        const id = data;
 
         const existing = await areaModel.getAreaById(id);
         if (!existing) {

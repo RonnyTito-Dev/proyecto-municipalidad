@@ -3,8 +3,8 @@
 // Importar el modelo
 const actionModel = require('../models/actionModel');
 
-// Importar el formatter
-const formatter = require('../utils/textFormatter');
+// Importar el Validador de Zod
+const { schemaIdValidator, schemaNameValidator, simpleCreateValidator, simpleUpdatedValidator } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -41,10 +41,14 @@ class ActionService {
     }
 
     // Obtener una acción por ID
-    async getActionById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID de la acción debe ser un número entero positivo');
-        }
+    async getActionById(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Accion').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // recuperar id
+        const id = data;
 
         const action = await actionModel.getActionById(id);
         if (!action) {
@@ -54,16 +58,19 @@ class ActionService {
     }
 
     // Obtener una acción por nombre
-    async getActionByName(nombre) {
-        if (!nombre) {
-            throw ApiError.badRequest('El nombre de la acción es requerido');
-        }
+    async getActionByName(rawName) {
 
-        const nombreFormateado = formatter.toTitleCase(nombre);
-        const action = await actionModel.getActionByName(nombreFormateado);
+        // Validar nombre
+        const { data, error } = schemaNameValidator('Accion').safeParse(rawName);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar nombre
+        const nombre = data;
+
+        const action = await actionModel.getActionByName(nombre);
 
         if (!action) {
-            throw ApiError.notFound(`Acción con nombre "${nombreFormateado}" no encontrada`);
+            throw ApiError.notFound(`Acción con nombre "${nombre}" no encontrada`);
         }
         return action;
     }
@@ -71,13 +78,14 @@ class ActionService {
     // ============================= MÉTODOS POST ==============================
 
     // Crear una nueva acción
-    async addAction(data) {
-        if (!data.nombre.trim()) {
-            throw ApiError.badRequest('El nombre de la acción es requerido');
-        }
+    async addAction(rawData) {
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Validar nombre y descripcion
+        const { data, error } = simpleCreateValidator('Accion').safeParse(rawData);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar datos
+        const { nombre, descripcion } = data;
 
         // Verificar si ya existe una acción con ese nombre
         const existing = await actionModel.getActionByName(nombre);
@@ -91,17 +99,14 @@ class ActionService {
     // ============================= MÉTODOS PUT ==============================
 
     // Actualizar una acción
-    async modifyAction(id, data) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID de la acción debe ser un número entero positivo');
-        }
+    async modifyAction(rawId, rawData) {
 
-        if (!data.nombre.trim()) {
-            throw ApiError.badRequest('El nombre de la acción es requerido');
-        }
+        // Validar el id
+        const { data, error } = simpleUpdatedValidator('Accion').safeParse({ id: Number(rawId), ...rawData });
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Recuperar datos
+        const { id, nombre, descripcion } = data;
 
         // Verificar si la acción existe
         const existing = await actionModel.getActionById(id);
@@ -127,10 +132,14 @@ class ActionService {
     // ============================= MÉTODOS PATCH ==============================
 
     // Eliminación lógica
-    async removeAction(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID de la acción debe ser un número entero positivo');
-        }
+    async removeAction(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Accion').safeParse(Number(rawId))
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar id
+        const id = data;
 
         const existing = await actionModel.getActionById(id);
         if (!existing) {
@@ -141,10 +150,13 @@ class ActionService {
     }
 
     // Restauracion lógica
-    async restoreAction(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID de la acción debe ser un número entero positivo');
-        }
+    async restoreAction(rawId) {
+        // Validar el id
+        const { data, error } = schemaIdValidator('Accion').safeParse(Number(rawId))
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // recuperar el id
+        const id = data;
 
         const existing = await actionModel.getActionById(id);
         if (!existing) {

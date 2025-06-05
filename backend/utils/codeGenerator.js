@@ -50,7 +50,7 @@ class CodeGenerator {
     }
 
     // Obtener ambos codigos
-    getRequestAndTrackingCode(nombres, apellidos){
+    getRequestCodeAndTrackingCode(nombres, apellidos){
         const requestPrefix = muniRequestCode;
         const trackingPrefix = muniTrackingCode;
 

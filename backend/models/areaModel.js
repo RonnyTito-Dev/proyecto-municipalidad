@@ -14,6 +14,7 @@ class AreaModel {
                 ar.id,
                 ar.nombre,
                 ar.descripcion,
+                ar.area_publica,
                 TO_CHAR(ar.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
                 er.id AS id_estado,
                 er.nombre AS estado
@@ -30,6 +31,7 @@ class AreaModel {
                 ar.id,
                 ar.nombre,
                 ar.descripcion,
+                ar.area_publica,
                 TO_CHAR(ar.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
                 er.id AS id_estado,
                 er.nombre AS estado
@@ -47,6 +49,7 @@ class AreaModel {
                 ar.id,
                 ar.nombre,
                 ar.descripcion,
+                ar.area_publica,
                 TO_CHAR(ar.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion,
                 er.id AS id_estado,
                 er.nombre AS estado
@@ -95,6 +98,19 @@ class AreaModel {
         );
         return result.rows[0];
     }
+
+    // Cambiar visibilidad pública de un área
+    async updateAreaVisibility(id, area_publica) {
+        const result = await db.query(
+            `UPDATE areas
+         SET area_publica = $1
+         WHERE id = $2
+         RETURNING *`,
+            [area_publica, id]
+        );
+        return result.rows[0];
+    }
+
 
     // ============================ MÉTODO PATCH ============================
 

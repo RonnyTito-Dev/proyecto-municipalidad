@@ -44,6 +44,9 @@ router.post('/', areaController.createArea);
 // Actualizar un área existente
 router.put('/:id', areaController.updateArea);
 
+// Cambiar visibilidad pública de un área
+router.put('/:id/visibilidad', areaController.updateAreaVisibility);
+
 // ======================================= SOLICITUD PATCH =======================================
 
 // Eliminar un área

@@ -27,7 +27,7 @@ router.get('/:id', attachmentController.getAttachmentById);
 router.get('/url/:url', attachmentController.getAttachmentByURL);
 
 // Obtener archivos adjuntos por código de solicitud
-router.get('/codigo/:codigoSolicitud', attachmentController.getAttachmentsByRequestCode);
+router.get('/codigo-solicitud/:codigoSolicitud', attachmentController.getAttachmentsByRequestCode);
 
 // ======================================= SOLICITUD POST =======================================
 

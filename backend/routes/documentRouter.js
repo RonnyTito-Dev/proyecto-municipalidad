@@ -23,14 +23,14 @@ router.get('/', documentController.getDocuments);
 // Obtener un documento por ID
 router.get('/:id', documentController.getDocumentById);
 
-// Obtener un documento por URL (query ?url=...)
-router.get('/buscar/url', documentController.getDocumentByURL);
+// Obtener un documento por URL
+router.get('/url/:url', documentController.getDocumentByURL);
 
 // Obtener documentos por código de solicitud
-router.get('/solicitud/:codigoSolicitud', documentController.getDocumentsByRequestCode);
+router.get('/codigo-solicitud/:codigoSolicitud', documentController.getDocumentsByRequestCode);
 
 // Obtener documentos por tipo de documento
-router.get('/tipo/:tipoDocumentoId', documentController.getDocumentsByDocumentType);
+router.get('/tipo-documento/:tipoDocumentoId', documentController.getDocumentsByDocumentType);
 
 // ======================================= SOLICITUD POST =======================================
 

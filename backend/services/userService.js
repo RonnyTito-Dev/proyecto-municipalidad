@@ -3,11 +3,11 @@
 // Importar el modelo de usuario
 const userModel = require('../models/userModel');
 
-// Importar el formatter para formatear texto
-const formatter = require('../utils/textFormatter');
-
 // Importar manejo de errores personalizados
 const ApiError = require('../errors/apiError');
+
+// Importamos el validador de Zod
+const { schemaIdValidator, schemaEmailValidator, schemaDNIValidator, schemaPhoneValidator, userCreateValidador, userUpdatedValidador, userUpdatedPasswordValidador, userUpdatedPinValidador } = require('../utils/validators');
 
 // Importamos el hash
 const bcryptHelper = require('../utils/bcryptHelper');
@@ -62,10 +62,14 @@ class UserService {
     }
 
     // Obtener un usuario por ID
-    async getUserById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async getUserById(rawId) {
+        // Validar el id
+        const { data, error } = schemaIdValidator('Usuario').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // recuperar id
+        const id = data;
+
         const user = await userModel.getUserById(id);
         if (!user) {
             throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
@@ -74,63 +78,53 @@ class UserService {
     }
 
     // Obtener un usuario por email
-    async getUserByEmail(email) {
-        if (!email) {
-            throw ApiError.badRequest('El email es requerido');
-        }
+    async getUserByEmail(rawEmail) {
 
-        // Validacion estricta email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Validar email
+        const { data, error } = schemaEmailValidator('Usuario').safeParse(rawEmail);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!emailRegex.test(email)) {
-            throw ApiError.badRequest('El formato del email no es válido');
-        }
+        // Recuperar el email
+        const email = data;
 
-        const emailFormatted = formatter.toLowerCase(email);
-        const user = await userModel.getUserByEmail(emailFormatted);
+        const user = await userModel.getUserByEmail(email);
         if (!user) {
-            throw ApiError.notFound(`Usuario con email "${emailFormatted}" no encontrado`);
+            throw ApiError.notFound(`Usuario con email "${email}" no encontrado`);
         }
         return user;
     }
 
 
     // Obtener usuario por DNI
-    async getUserByDni(dni) {
-        if (!dni) {
-            throw ApiError.badRequest('El DNI es requerido');
-        }
+    async getUserByDni(rawDNI) {
 
-        // Validacion estricta
-        const dniRegex = /^\d{8}$/;
-        if (!dniRegex.test(dni)) {
-            throw ApiError.badRequest('El DNI debe tener exactamente 8 dígitos numéricos');
-        }
+        // Vaidar DNI
+        const { data, error } = schemaDNIValidator('Usuario').safeParse(rawDNI);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        const dniFormatted = formatter.toUpperCase(dni);
-        const user = await userModel.getUserByDni(dniFormatted);
+        // Recuperar el email
+        const dni = data;
+
+        const user = await userModel.getUserByDni(dni);
         if (!user) {
-            throw ApiError.notFound(`Usuario con DNI "${dniFormatted}" no encontrado`);
+            throw ApiError.notFound(`Usuario con DNI "${dni}" no encontrado`);
         }
         return user;
     }
 
     // Obtener usuario por celular
-    async getUserByPhone(celular) {
-        if (!celular) {
-            throw ApiError.badRequest('El celular es requerido');
-        }
+    async getUserByPhone(rawPhone) {
 
-        // Validacion estricta del celular
-        const celularRegex = /^\d{9}$/;
+        // Validar celular
+        const { data, error } = schemaPhoneValidator('Usuario').safeParse(rawPhone);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!celularRegex.test(celular)) {
-            throw ApiError.badRequest('El celular debe tener exactamente 9 dígitos numéricos');
-        }
-        const celularFormatted = formatter.trim(celular);
-        const user = await userModel.getUserByPhone(celularFormatted);
+        // Recuperar celular
+        const celular = data;
+
+        const user = await userModel.getUserByPhone(celular);
         if (!user) {
-            throw ApiError.notFound(`Usuario con celular "${celularFormatted}" no encontrado`);
+            throw ApiError.notFound(`Usuario con celular "${celular}" no encontrado`);
         }
         return user;
     }
@@ -139,74 +133,18 @@ class UserService {
     // ============================= MÉTODO POST ==============================
 
     // Crear un nuevo usuario
-    async addUser(data) {
+    async addUser(rawData) {
 
-        // Validar nombres
-        if (!data.nombres?.trim()) throw ApiError.badRequest('El nombre es requerido');
+        // Validar datos de usuario
+        const { data, error } = userCreateValidador.safeParse(rawData);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        // Validar apellidos
-        if (!data.apellidos?.trim()) throw ApiError.badRequest('El apellido es requerido');
-
-        // Validar dni
-        if (!data.dni?.trim()) throw ApiError.badRequest('El DNI es requerido');
-
-        if (typeof data.dni !== 'string' || data.dni.trim().length !== 8 || !/^\d{8}$/.test(data.dni.trim())) {
-            throw ApiError.badRequest('El DNI debe ser un string de 8 dígitos numéricos');
-        }
-
-        // Validar email
-        if (!data.email?.trim()) throw ApiError.badRequest('El email es requerido');
-        if (typeof data.email !== 'string' || !/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(data.email.trim())) {
-            throw ApiError.badRequest('El email debe tener un formato válido');
-        }
-
-        // Validar el celular
-        if (!data.celular?.trim()) throw ApiError.badRequest('El celular es requerido');
-
-        if (typeof data.celular !== 'string' || !/^\d{9}$/.test(data.celular.trim())) {
-            throw ApiError.badRequest('El celular debe ser un string de 9 dígitos numéricos');
-        }
-
-        // Validar el pin
-        if (!data.pin_seguridad?.trim()) throw ApiError.badRequest('El PIN es requerido');
-
-        if (typeof data.pin_seguridad !== 'string' || !/^\d{4}$/.test(data.pin_seguridad.trim())) {
-            throw ApiError.badRequest('El PIN debe ser de 4 dígitos numéricos');
-        }
-
-        // Validar contrasenia
-        if (!data.contrasenia?.trim()) throw ApiError.badRequest('La contraseña es requerida');
-        if (data.contrasenia.trim().length < 8) throw ApiError.badRequest('La contraseña debe tener al menos 8 caracteres');
-
-        // Validar rol
-        if (data.rol_id === undefined || data.rol_id === null || !Number.isInteger(data.rol_id) || data.rol_id <= 0) {
-            throw ApiError.badRequest('El rol debe ser un número entero positivo');
-        }
-
-        // Validar area
-        if (data.area_id === undefined || data.area_id === null || !Number.isInteger(data.area_id) || data.area_id <= 0) {
-            throw ApiError.badRequest('El área debe ser un número entero positivo');
-        }
-
-        // Validar estado del usuario
-        if (data.estado_usuario_id === undefined || data.estado_usuario_id === null || !Number.isInteger(data.estado_usuario_id) || data.estado_usuario_id <= 0) {
-            throw ApiError.badRequest('El estado usuario debe ser un número entero positivo');
-        }
-
-        // Formateo de datos
-        const nombres = formatter.toTitleCase(data.nombres);
-        const apellidos = formatter.toTitleCase(data.apellidos);
-        const dni = formatter.toUpperCase(data.dni);
-        const email = formatter.toLowerCase(data.email);
-        const celular = formatter.trim(data.celular);
-        const rol_id = data.rol_id;
-        const area_id = data.area_id;
-        const estado_usuario_id = data.estado_usuario_id;
+        // Recuperamos datos
+        const { nombres, apellidos, dni, email, celular, rol_id, area_id, estado_usuario_id } = data;
 
         // Hashear pin y contrasenia
-        const pin_seguridad = await bcryptHelper.hashPin(formatter.toUpperCase(data.pin));
+        const pin_seguridad = await bcryptHelper.hashPin(data.pin_seguridad);
         const contrasenia = await bcryptHelper.hashPassword(data.contrasenia);
-
 
         // Verificar email, dni y celular
         if (await userModel.getUserByEmail(email)) throw ApiError.conflict('El email ya está registrado por otro usuario');
@@ -216,51 +154,22 @@ class UserService {
         if (await userModel.getUserByPhone(celular)) throw ApiError.conflict('El celular ya está registrado por otro usuario');
 
         // Crear el registro
-        return await userModel.createUser({
-            nombres,
-            apellidos,
-            dni,
-            email,
-            celular,
-            pin_seguridad,
-            contrasenia,
-            rol_id,
-            area_id,
-            estado_usuario_id,
+        return await userModel.createUser({ nombres, apellidos, dni, email, celular, pin_seguridad,
+            contrasenia, rol_id, area_id, estado_usuario_id
         });
     }
 
     // ============================= MÉTODOS PUT ==============================
 
     // Actualizar datos personales (nombres, apellidos, email, celular)
-    async updateUserData(id, data) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async updateUserData(rawId, rawData) {
 
-        // Validar nombres
-        if (!data.nombres?.trim()) throw ApiError.badRequest('El nombre es requerido');
+        // Validar datos
+        const { data, error } = userUpdatedValidador.safeParse({ id: Number(rawId), ...rawData });
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        // Validar apellidos
-        if (!data.apellidos?.trim()) throw ApiError.badRequest('El apellido es requerido');
-
-        // Validar email
-        if (!data.email?.trim()) throw ApiError.badRequest('El email es requerido');
-        if (typeof data.email !== 'string' || !/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(data.email.trim())) {
-            throw ApiError.badRequest('El email debe tener un formato válido');
-        }
-
-        // Validar el celular
-        if (!data.celular?.trim()) throw ApiError.badRequest('El celular es requerido');
-        if (typeof data.celular !== 'string' || !/^\d{9}$/.test(data.celular.trim())) {
-            throw ApiError.badRequest('El celular debe tener de 9 dígitos numéricos');
-        }
-
-        // Formatear datos
-        const nombres = formatter.toTitleCase(data.nombres);
-        const apellidos = formatter.toTitleCase(data.apellidos);
-        const email = formatter.toLowerCase(data.email);
-        const celular = formatter.trim(data.celular);
+        // Recuperar datos
+        const { id, nombres, apellidos, email, celular } = data;
 
         // Verificar usuario
         const user = await userModel.getUserById(id);
@@ -291,117 +200,92 @@ class UserService {
             throw ApiError.conflict('No se detectaron cambios para actualizar');
         }
 
-        return await userModel.updateUserData(id, {
-            nombres,
-            apellidos,
-            email,
-            celular,
-        });
+        return await userModel.updateUserData(id, { nombres, apellidos, email, celular });
     }
 
     // Actualizar la contraseña del usuario
-    async updateUserPassword(id, data) {
-        // Validar id
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async updateUserPassword(rawId, rawData) {
 
-        // Validar contrasenias
-        if (!data.contrasenia_actual || !data.contrasenia_nueva) {
-            throw ApiError.badRequest('Se requiere la contraseña actual y la nueva contraseña');
-        }
+        // Validar datos
+        const { data, error } = userUpdatedPasswordValidador.safeParse({ id: Number(rawId), ...rawData });
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (data.contrasenia_actual.length < 8) throw ApiError.badRequest('La contraseña actual debe tener al menos 8 caracteres');
+        // Recuperamos datos
+        const id = data.id;
 
-        if (data.contrasenia_nueva.length < 8) throw ApiError.badRequest('La contraseña nueva debe tener al menos 8 caracteres');
-
-        // Guardar valores
+        // Guardar contraseñas
         const contrasenia_actual = data.contrasenia_actual;
-        const contrasenia_nueva = await bcryptHelper.hashPassword(data.contrasenia_nueva);
+        const contrasenia_nueva_raw = data.contrasenia_nueva;
 
         // Buscar usuario
         const user = await userModel.getUserById(id);
-
-        // Verificar usuario
-        if (!user) {
-            throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
-        }
+        if (!user) throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
 
         // Verficar contraseña actual
         const contraseniaValida = await bcryptHelper.comparePassword(contrasenia_actual, user.contrasenia);
-        if (!contraseniaValida) {
-            throw ApiError.badRequest('La contraseña actual es incorrecta');
-        }
+        if (!contraseniaValida) throw ApiError.badRequest('La contraseña actual es incorrecta');
 
         // Verificar que las contraseñas no sean las mismas
         const contraseniasIguales = await bcryptHelper.comparePassword(data.contrasenia_nueva, user.contrasenia);
-        if (contraseniasIguales) {
-            throw ApiError.conflict('La nueva contraseña no puede ser igual a la anterior');
-        }
+        if (contraseniasIguales) throw ApiError.conflict('La nueva contraseña no puede ser igual a la anterior');
+
+        // Hashear nueva contrasenia
+        const contrasenia_nueva = await bcryptHelper.hashPassword(contrasenia_nueva_raw);
 
         return await userModel.updateUserPassword(id, contrasenia_nueva);
     }
 
+
     // Actualizar el PIN del usuario
-    async updateUserPin(id, data) {
-        // Validar id
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async updateUserPin(rawId, rawData) {
 
-        // Validar PINs
-        if (!data.pin_actual || !data.pin_nuevo) {
-            throw ApiError.badRequest('Se requiere el PIN actual y el nuevo PIN');
-        }
+        // Validar datos
+        const { data, error } = userUpdatedPinValidador.safeParse({ id: Number(rawId), ...rawData });
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!/^\d{4}$/.test(data.pin_actual)) {
-            throw ApiError.badRequest('El PIN actual debe ser un número de 4 dígitos');
-        }
-
-        if (!/^\d{4}$/.test(data.pin_nuevo)) {
-            throw ApiError.badRequest('El PIN nuevo debe ser un número de 4 dígitos');
-        }
+        // Recuperamos datos
+        const id = data.id;
 
         // Guardar valores
         const pin_actual = data.pin_actual;
-        const pin_nuevo = await bcryptHelper.hashPin(data.pin_nuevo);
+        const pin_nuevo_raw = data.pin_nuevo;
 
         // Buscar usuario
         const user = await userModel.getUserById(id);
-
-        // Verificar existencia
-        if (!user) {
-            throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
-        }
+        if (!user) throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
 
         // Verificar PIN actual
-        const pinValido = await bcryptHelper.comparePin(pin_actual, user.pin);
-        if (!pinValido) {
-            throw ApiError.badRequest('El PIN actual es incorrecto');
-        }
+        const pinValido = await bcryptHelper.comparePin(pin_actual, user.pin_seguridad);
+        if (!pinValido) throw ApiError.badRequest('El PIN actual es incorrecto');
 
         // Verificar que los pines sean distintos
-        const pinsIguales = await bcryptHelper.comparePin(data.pin_nuevo, user.pin);
-        if (pinsIguales) {
-            throw ApiError.conflict('El nuevo PIN no puede ser igual al anterior');
-        }
+        const pinsIguales = await bcryptHelper.comparePin(data.pin_nuevo, user.pin_seguridad);
+        if (pinsIguales) throw ApiError.conflict('El nuevo PIN no puede ser igual al anterior');
 
+        // Hashear pin
+        const pin_nuevo = await bcryptHelper.hashPin(pin_nuevo_raw);
+        
         // Actualizar en base de datos
         return await userModel.updateUserPin(id, pin_nuevo);
     }
 
     // Cambiar el rol  al usuario
-    async updateUserRol(id, rol_id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async updateUserRol(rawId, rawRolId) {
 
-        if (rol_id === undefined || rol_id === null || isNaN(Number(rol_id)) || Number(rol_id) <= 0 || !Number.isInteger(Number(rol_id))) {
-            throw ApiError.badRequest('El ID del rol debe ser un número entero positivo');
-        }
+        // Validar el id
+        const validatedId = schemaIdValidator('Usuario').safeParse(Number(rawId));
+        if (validatedId.error) throw ApiError.badRequest(validatedId.error.errors[0].message);
 
+        // Validar rol id
+        const validatedRolId = schemaIdValidator('Rol').safeParse(Number(rawRolId));
+        if (validatedRolId.error) throw ApiError.badRequest(validatedRolId.error.errors[0].message);
+
+        // recuperar id
+        const id = validatedId.data;
+        const rol_id = validatedRolId.data;
 
         const user = await userModel.getUserById(id);
+
         if (!user) {
             throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
         }
@@ -410,19 +294,23 @@ class UserService {
             throw ApiError.conflict('El rol del usuario es la misma');
         }
 
-        return await userModel.updateUserArea(id, rol_id);
+        return await userModel.updateUserRol(id, rol_id);
     }
 
     // Cambiar el área asignada al usuario
-    async updateUserArea(id, area_id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async updateUserArea(rawId, rawAreaId) {
 
-        if (area_id === undefined || area_id === null || isNaN(Number(area_id)) || Number(area_id) <= 0 || !Number.isInteger(Number(area_id))) {
-            throw ApiError.badRequest('El ID del área debe ser un número entero positivo');
-        }
+        // Validar el id
+        const validatedId = schemaIdValidator('Usuario').safeParse(Number(rawId));
+        if (validatedId.error) throw ApiError.badRequest(validatedId.error.errors[0].message);
 
+        // Validar area id
+        const validatedAreaId = schemaIdValidator('Area').safeParse(Number(rawAreaId));
+        if (validatedAreaId.error) throw ApiError.badRequest(validatedAreaId.error.errors[0].message);
+
+        // recuperar id
+        const id= validatedId.data;
+        const area_id = validatedAreaId.data;
 
         const user = await userModel.getUserById(id);
         if (!user) {
@@ -437,33 +325,43 @@ class UserService {
     }
 
     // Cambiar el estado del usuario (habiilitar o deshabilitar)
-    async updateUserState(id, nuevoEstadoUsuarioId) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
-        if (!nuevoEstadoUsuarioId || isNaN(nuevoEstadoUsuarioId) || Number(nuevoEstadoUsuarioId) <= 0 || !Number.isInteger(Number(nuevoEstadoUsuarioId))) {
-            throw ApiError.badRequest('El ID del estado usuario debe ser un número entero positivo');
-        }
+    async updateUserState(rawId, rawUserStateId) {
+
+        // Validar el id
+        const validatedId = schemaIdValidator('Usuario').safeParse(Number(rawId));
+        if (validatedId.error) throw ApiError.badRequest(validatedId.error.errors[0].message);
+
+        // Validar estado usuario id
+        const validatedUserStateId = schemaIdValidator('Estado de Usuario').safeParse(Number(rawUserStateId));
+        if (validatedUserStateId.error) throw ApiError.badRequest(validatedUserStateId.error.errors[0].message);
+
+        // recuperar id
+        const id = validatedId.data;
+        const estado_usuario_id = validatedUserStateId.data;
 
         const user = await userModel.getUserById(id);
         if (!user) {
             throw ApiError.notFound(`Usuario con ID ${id} no encontrado`);
         }
 
-        if (user.estado_usuario_id === Number(nuevoEstadoUsuarioId)) {
+        if (user.estado_usuario_id === Number(estado_usuario_id)) {
             throw ApiError.conflict('El estado usuario es el mismo');
         }
 
-        return await userModel.updateUserState(id, Number(nuevoEstadoUsuarioId));
+        return await userModel.updateUserState(id, estado_usuario_id);
     }
 
     // ============================ MÉTODO PACTH =============================
 
     // Eliminación lógica
-    async removeUser(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async removeUser(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Usuario').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // recuperar el id
+        const id = data;
 
         const user = await userModel.getUserById(id);
         if (!user) {
@@ -477,12 +375,16 @@ class UserService {
         await userModel.deleteUser(id);
     }
 
-    
+
     // Restauracion lógica
-    async restoreUser(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del usuario debe ser un número entero positivo');
-        }
+    async restoreUser(rawId) {
+
+        // Validar el id
+        const {data, error } = schemaIdValidator('Usuario').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const user = await userModel.getUserById(id);
         if (!user) {

@@ -60,27 +60,32 @@ class Server {
     }
 
     routes() {
-        // Configuración de todas las rutas
 
-        this.app.use('/acciones', actionRouter);                // Ruta para acciones
-        this.app.use('/areas', areaRouter);                     // Ruta para areas
-        this.app.use('/adjuntos', attachmentRouter);            // Ruta para adjuntos
-        this.app.use('/auth', authRouter);                      // Ruta para autenticacion
-        this.app.use('/documentos', documentRouter);            // Ruta para documentos
-        this.app.use('/tipos-documento', documentTypeRouter);   // Ruta para tipos de docuementos
-        this.app.use('/logs', logRouter);                       // Ruta para logs
-        this.app.use('/canales-notificacion', notificationChannelRouter);                   // Ruta para canales de notificacion
-        this.app.use('/notificaciones', notificationRouter);    // Ruta para notificaciones
-        this.app.use('/estados-registro', registerStatusRouter);                            // Ruta para estados de registro
-        this.app.use('/reniec', reniecRouter);                  // Ruta pare la API
-        this.app.use('/canales-solicitud', requestChannelRouter);                           // Ruta para canales de solicitud
-        this.app.use('/solicitudes', requestRouter);            // Ruta para solicitudes
-        this.app.use('/historial-estados-solicitud', requestStatusHistoryRouter);           // Ruta para historial de estados de solicitud
-        this.app.use('/estados-solicitud', requestStatusRouter);                            // Ruta para estados de solicitud
-        this.app.use('/roles', roleRouter);                     // Ruta para roles
-        this.app.use('/usuarios', userRouter);                  // Ruta para usuarios
-        this.app.use('/firmas-usuario', userSignatureRouter);   // Ruta para firmas de usuarios
-        this.app.use('/estados-usuario', userStatusRouter);     // Ruta para estados de usuario
+        const apiRouter = require('express').Router();
+
+        // Montar todas las rutas dentro del router apiRouter
+        apiRouter.use('/acciones', actionRouter);                // Ruta para acciones
+        apiRouter.use('/areas', areaRouter);                     // Ruta para areas
+        apiRouter.use('/adjuntos', attachmentRouter);            // Ruta para adjuntos
+        apiRouter.use('/auth', authRouter);                      // Ruta para autenticacion
+        apiRouter.use('/documentos', documentRouter);            // Ruta para documentos
+        apiRouter.use('/tipos-documento', documentTypeRouter);   // Ruta para tipos de docuementos
+        apiRouter.use('/logs', logRouter);                       // Ruta para logs
+        apiRouter.use('/canales-notificacion', notificationChannelRouter);                   // Ruta para canales de notificacion
+        apiRouter.use('/notificaciones', notificationRouter);    // Ruta para notificaciones
+        apiRouter.use('/estados-registro', registerStatusRouter);                            // Ruta para estados de registro
+        apiRouter.use('/reniec', reniecRouter);                  // Ruta pare la API
+        apiRouter.use('/canales-solicitud', requestChannelRouter);                           // Ruta para canales de solicitud
+        apiRouter.use('/solicitudes', requestRouter);            // Ruta para solicitudes
+        apiRouter.use('/historial-estados-solicitud', requestStatusHistoryRouter);           // Ruta para historial de estados de solicitud
+        apiRouter.use('/estados-solicitud', requestStatusRouter);                            // Ruta para estados de solicitud
+        apiRouter.use('/roles', roleRouter);                     // Ruta para roles
+        apiRouter.use('/usuarios', userRouter);                  // Ruta para usuarios
+        apiRouter.use('/firmas', userSignatureRouter);   // Ruta para firmas de usuarios
+        apiRouter.use('/estados-usuario', userStatusRouter);     // Ruta para estados de usuario
+
+        // Montar el router principal con el prefijo /api
+        this.app.use('/api', apiRouter);
 
         // Configuración del middleware de errores
         this.app.use(errorHandler); 

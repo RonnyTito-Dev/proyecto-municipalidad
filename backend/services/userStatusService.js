@@ -3,8 +3,8 @@
 // Importar el modelo
 const userStatusModel = require('../models/userStatusModel');
 
-// Importar el formatter
-const formatter = require('../utils/textFormatter');
+// Importar el validador de zod
+const { schemaIdValidator, schemaNameValidator, simpleCreateValidator, simpleUpdatedValidator } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -17,7 +17,7 @@ class UserStatusService {
     async getAllStatuses() {
         const statuses = await userStatusModel.getAllStatuses();
         if (!statuses || statuses.length === 0) {
-            throw ApiError.notFound('No hay estados de usuario registrados');
+            throw ApiError.notFound('No hay Estados de Usuario registrados');
         }
         return statuses;
     }
@@ -26,7 +26,7 @@ class UserStatusService {
     async getActiveStatuses() {
         const statuses = await userStatusModel.getActiveStatuses();
         if (!statuses || statuses.length === 0) {
-            throw ApiError.notFound('No hay estados activos registrados');
+            throw ApiError.notFound('No hay Estados de Usuario activos registrados');
         }
         return statuses;
     }
@@ -35,55 +35,58 @@ class UserStatusService {
     async getDeletedStatuses() {
         const statuses = await userStatusModel.getDeletedStatuses();
         if (!statuses || statuses.length === 0) {
-            throw ApiError.notFound('No hay estados eliminados registrados');
+            throw ApiError.notFound('No hay Estados de Usuario eliminados registrados');
         }
         return statuses;
     }
 
     // Obtener un estado por ID
-    async getStatusById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del estado debe ser un número entero positivo');
-        }
+    async getStatusById(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Estado de Usuario').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const status = await userStatusModel.getStatusById(id);
-        if (!status) {
-            throw ApiError.notFound(`Estado con ID ${id} no encontrado`);
-        }
+        if (!status) throw ApiError.notFound(`Estado de Usuario con ID ${id} no encontrado`);
+
         return status;
     }
 
     // Obtener un estado por nombre
-    async getStatusByName(nombre) {
-        if (!nombre) {
-            throw ApiError.badRequest('El nombre del estado es requerido');
-        }
+    async getStatusByName(rawName) {
 
-        const nombreFormateado = formatter.toTitleCase(nombre);
-        const status = await userStatusModel.getStatusByName(nombreFormateado);
+        // Validar el nombre
+        const { data, error } = schemaNameValidator('Estado Usuario').safeParse(rawName);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!status) {
-            throw ApiError.notFound(`Estado con nombre "${nombreFormateado}" no encontrado`);
-        }
+        // Recuperar el nombre
+        const nombre = data;
+        const status = await userStatusModel.getStatusByName(nombre);
+
+        if (!status) throw ApiError.notFound(`Estado de Usuario con nombre "${nombre}" no encontrado`);
+
         return status;
     }
 
     // ============================= MÉTODOS POST ==============================
 
     // Crear un nuevo estado de usuario
-    async addStatus(data) {
-        if (!data.nombre) {
-            throw ApiError.badRequest('El nombre del estado es requerido');
-        }
+    async addStatus(rawData) {
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Validar datos
+        const { data, error } = simpleCreateValidator('Estado Usuario').safeParse(rawData);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar datos
+        const { nombre, descripcion } = data;
 
         // Verificar si ya existe un estado con ese nombre
         const existing = await userStatusModel.getStatusByName(nombre);
-        if (existing) {
-            throw ApiError.conflict(`El estado con nombre "${nombre}" ya está registrado`);
-        }
+        if (existing) throw ApiError.conflict(`El Estado de Usuario con nombre "${nombre}" ya está registrado`);
 
         return await userStatusModel.createStatus({ nombre, descripcion });
     }
@@ -91,23 +94,18 @@ class UserStatusService {
     // ============================= MÉTODOS PUT ==============================
 
     // Actualizar un estado de usuario
-    async modifyStatus(id, data) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del estado debe ser un número entero positivo');
-        }
+    async modifyStatus(rawId, rawData) {
 
-        if (!data.nombre) {
-            throw ApiError.badRequest('El nombre del estado es requerido');
-        }
+        // Validar datos
+        const { data, error } = simpleUpdatedValidator('Estado de Usuario').safeParse({ id: Number(rawId), ...rawData });
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Recuperar datos
+        const { id, nombre, descripcion } = data;
 
         // Verificar si el estado existe
         const existing = await userStatusModel.getStatusById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Estado con ID ${id} no encontrado`);
-        }
+        if (!existing) throw ApiError.notFound(`Estado de Usuario con ID ${id} no encontrado`);
 
         // Validar si no hay cambios
         if (nombre === existing.nombre && descripcion === existing.descripcion) {
@@ -116,9 +114,7 @@ class UserStatusService {
 
         // Verificar si el nuevo nombre está en uso por otro estado
         const nombreDuplicado = await userStatusModel.getStatusByName(nombre);
-        if (nombreDuplicado && nombreDuplicado.id !== id) {
-            throw ApiError.conflict(`El estado con nombre "${nombre}" ya está registrado por otro estado`);
-        }
+        if (nombreDuplicado && nombreDuplicado.id !== id) throw ApiError.conflict(`El Estado de Usuario con nombre "${nombre}" ya está registrado por otro estado`);
 
         return await userStatusModel.updateStatus(id, { nombre, descripcion });
     }
@@ -126,29 +122,33 @@ class UserStatusService {
     // ============================ MÉTODOS PATCH ==============================
 
     // Eliminación lógica
-    async removeStatus(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del estado debe ser un número entero positivo');
-        }
+    async removeStatus(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Estado de Usuario').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const existing = await userStatusModel.getStatusById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Estado con ID ${id} no encontrado`);
-        }
+        if (!existing) throw ApiError.notFound(`Estado de Usuario con ID ${id} no encontrado`);
 
         await userStatusModel.deleteStatus(id);
     }
-    
+
     // Restauracion lógica
-    async restoreStatus(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del estado debe ser un número entero positivo');
-        }
+    async restoreStatus(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Estado de Usuario').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const existing = await userStatusModel.getStatusById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Estado con ID ${id} no encontrado`);
-        }
+        if (!existing) throw ApiError.notFound(`Estado de Usuario con ID ${id} no encontrado`);
 
         await userStatusModel.restoreStatus(id);
     }

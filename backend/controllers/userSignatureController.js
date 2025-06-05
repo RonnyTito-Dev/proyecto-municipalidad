@@ -1,52 +1,110 @@
 // controllers/userSignatureController.js
 
-// Importamos el UserSignatureService
+// Importar el servicio
 const userSignatureService = require('../services/userSignatureService');
 
 class UserSignatureController {
 
-    // ========================================== MÉTODOS GET ==========================================
+    // ============================= MÉTODOS GET ==============================
 
     // Obtener todas las firmas
-    async getSignatures(req, res, next) {
+    async getAllSignatures(req, res, next) {
         try {
-            const signatures = await userSignatureService.getAllSignatures();
-            res.json(signatures);
+            const firmas = await userSignatureService.getSignatures();
+            res.json(firmas);
         } catch (error) {
             next(error);
         }
     }
 
+    // Obtener todas las firmas activas
+    async getActiveSignatures(req, res, next) {
+        try {
+            const firmas = await userSignatureService.getActiveSignatures();
+            res.json(firmas);
+        } catch (error) {
+            next(error);
+        }
+    }
 
-    // Obtener una firma por ID
+    // Obtener todas las firmas inactivas
+    async getInactiveSignatures(req, res, next) {
+        try {
+            const firmas = await userSignatureService.getInactiveSignatures();
+            res.json(firmas);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Obtener firma por ID
     async getSignatureById(req, res, next) {
-        const { id } = req.params;
         try {
-            const signature = await userSignatureService.getSignatureById(id);
-            res.json(signature);
+            const { id } = req.params;
+            const firma = await userSignatureService.getSignatureById(id);
+            res.json(firma);
         } catch (error) {
             next(error);
         }
     }
 
-    // Obtener una firma por ID de usuario
-    async getSignatureByUserId(req, res, next) {
-        const { usuario_id } = req.params;
+    // Obtener la firma activa del mismo usuario
+    async getActiveSignatureByUserId(req, res, next) {
         try {
-            const signature = await userSignatureService.getSignatureByUserId(usuario_id);
-            res.json(signature);
+            const { usuario_id } = req.user;
+            const firma = await userSignatureService.getActiveSignatureByUserId(usuario_id);
+            res.json(firma);
         } catch (error) {
             next(error);
         }
     }
 
-    // ========================================== MÉTODO POST ==========================================
+    // Obtener todas las firmas del mismo usuario
+    async getAllSignaturesByUserId(req, res, next) {
+        try {
+            const { usuario_id } = req.user;
+            const firmas = await userSignatureService.getSignaturesByUserId(usuario_id);
+            res.json(firmas);
+        } catch (error) {
+            next(error);
+        }
+    }
 
-    // Crear una nueva firma para un usuario (única por usuario)
+    // ============================= MÉTODO POST ==============================
+
+    // Crear nueva firma
     async createSignature(req, res, next) {
         try {
-            const newSignature = await userSignatureService.addSignature(req.body);
-            res.status(201).json(newSignature);
+            const { usuario_id } = req.user;
+            const { ruta_firma } = req.body;
+
+            const firma = await userSignatureService.addSignature({ usuario_id, ruta_firma });
+            res.status(201).json(firma);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // ============================= MÉTODO PUT ==============================
+
+    // Activar una firma (y desactivar otras del mismo usuario)
+    async activateSignature(req, res, next) {
+        try {
+            const { id } = req.params;
+            const { usuario_id } = req.user;
+            const firma = await userSignatureService.activateSignature(id, usuario_id);
+            res.json(firma);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Desactivar todas las firmas de un usuario
+    async deactivateAllSignaturesByUserId(req, res, next) {
+        try {
+            const { usuario_id } = req.user;
+            await userSignatureService.deactivateSignatures(usuario_id);
+            res.status(204).send(); // No Content
         } catch (error) {
             next(error);
         }
@@ -54,5 +112,5 @@ class UserSignatureController {
 
 }
 
-// Exportamos la instancia de la clase
+// Exportar una instancia
 module.exports = new UserSignatureController();

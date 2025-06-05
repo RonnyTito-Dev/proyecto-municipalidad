@@ -92,6 +92,20 @@ class AreaController {
         }
     }
 
+    // Cambiar visibilidad pública de un área
+    async updateAreaVisibility(req, res, next) {
+        const { id } = req.params;
+        const { area_publica } = req.body;
+
+        try {
+            const updated = await areaService.updateAreaVisibility(id, area_publica);
+            res.json(updated);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
     // ========================================== METODO PATCH ==========================================
 
     // Método para eliminar

@@ -219,7 +219,7 @@ class UserModel {
     async updateUserPin(id, pin_nuevo) {
         const result = await db.query(
             `UPDATE usuarios
-       SET pin = $1
+       SET pin_seguridad = $1
        WHERE id = $2
        RETURNING *`,
             [pin_nuevo, id]
@@ -227,7 +227,7 @@ class UserModel {
         return result.rows[0];
     }
 
-    // Cambiar el rol asignado al usuario
+    // Cambiar el rol al usuario
     async updateUserRol(id, nuevo_rol_id) {
         const result = await db.query(
             `UPDATE usuarios
@@ -279,7 +279,7 @@ class UserModel {
     async restoreUser(id) {
         await db.query(
             `UPDATE usuarios
-       SET estado_registro_id = 2
+       SET estado_registro_id = 1
        WHERE id = $1`,
             [id]
         );

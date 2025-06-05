@@ -1,48 +1,121 @@
 // userSignatureModel.js
 
-// Importar al DB
+// Importar la conexión a la base de datos
 const db = require('../config/db');
 
 class UserSignatureModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las firmas de usuario
+    // Obtener todas las firmas de usuarios
     async getAllSignatures() {
         const result = await db.query(
             `SELECT
                 fu.id,
-                us.nombres AS nombres,
-                us.apellidos AS apellidos,
-                us.email AS email,
+                us.nombres,
+                us.apellidos,
+                us.email,
                 fu.ruta_firma,
-                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida,
-                er.id AS id_estado,
-                er.nombre AS estado
+                fu.activo,
+                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida
             FROM firmas_usuarios fu
             INNER JOIN usuarios us ON fu.usuario_id = us.id
-            INNER JOIN estados_registro er ON fu.estado_registro_id = er.id
             ORDER BY fu.id DESC`
         );
         return result.rows;
     }
 
-    // Obtener una firma por ID
+    // Obtener todas las firmas activas
+    async getActiveSignatures() {
+        const result = await db.query(
+            `SELECT
+                fu.id,
+                us.nombres,
+                us.apellidos,
+                us.email,
+                fu.ruta_firma,
+                fu.activo,
+                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida
+            FROM firmas_usuarios fu
+            INNER JOIN usuarios us ON fu.usuario_id = us.id
+            WHERE fu.activo = true
+            ORDER BY fu.id DESC`
+        );
+        return result.rows;
+    }
+
+    // Obtener todas las firmas inactivas
+    async getInactiveSignatures() {
+        const result = await db.query(
+            `SELECT
+                fu.id,
+                us.nombres,
+                us.apellidos,
+                us.email,
+                fu.ruta_firma,
+                fu.activo,
+                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida
+            FROM firmas_usuarios fu
+            INNER JOIN usuarios us ON fu.usuario_id = us.id
+            WHERE fu.activo = false
+            ORDER BY fu.id DESC`
+        );
+        return result.rows;
+    }
+
+    // Obtener una firma por ID (versión simple)
     async getSignatureById(id) {
         const result = await db.query(
-            'SELECT * FROM firmas_usuario WHERE id = $1',
+            'SELECT * FROM firmas_usuarios WHERE id = $1',
             [id]
         );
         return result.rows[0];
     }
 
-    // Obtener firmas por usuario_id
-    async getSignatureByUserId(usuario_id) {
+    // Obtener una firma por Ruta (versión simple)
+    async getSignatureByPath(ruta_firma) {
         const result = await db.query(
-            'SELECT * FROM firmas_usuario WHERE usuario_id = $1 AND estado_registro_id = 1 ORDER BY id DESC',
+            'SELECT * FROM firmas_usuarios WHERE ruta_firma = $1',
+            [ruta_firma]
+        );
+        return result.rows[0];
+    }
+
+    // Obtener la firma activa de un usuario
+    async getActiveSignatureByUserId(usuario_id) {
+        const result = await db.query(
+            `SELECT
+                fu.id,
+                fu.usuario_id,
+                fu.ruta_firma,
+                fu.activo,
+                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida
+            FROM firmas_usuarios fu
+            WHERE fu.usuario_id = $1 AND fu.activo = true
+            LIMIT 1`,
             [usuario_id]
         );
         return result.rows[0];
+    }
+
+    // Obtener todas las firmas de un usuario ya sea activas o inactivas
+    async getSignaturesByUserId(usuario_id) {
+        const result = await db.query(
+            `SELECT
+                fu.id,
+                us.nombres,
+                us.apellidos,
+                us.email,
+                fu.ruta_firma,
+                fu.activo,
+                TO_CHAR(fu.fecha_subida, 'DD/MM/YYYY HH24:MI:SS') AS fecha_subida
+            FROM firmas_usuarios fu
+            INNER JOIN usuarios us ON fu.usuario_id = us.id
+            WHERE fu.usuario_id = $1
+            ORDER BY fu.id DESC`,
+            [usuario_id]
+        );
+        return result.rows;
     }
 
     // ============================= MÉTODO POST =============================
@@ -50,12 +123,44 @@ class UserSignatureModel {
     // Agregar una nueva firma
     async createSignature({ usuario_id, ruta_firma }) {
         const result = await db.query(
-            `INSERT INTO firmas_usuario (usuario_id, ruta_firma)
-       VALUES ($1, $2)
-       RETURNING *`,
+            `INSERT INTO firmas_usuarios (usuario_id, ruta_firma)
+             VALUES ($1, $2)
+             RETURNING *`,
             [usuario_id, ruta_firma]
         );
         return result.rows[0];
+    }
+
+    // ============================= MÉTODO PUT =============================
+
+    // Activar una firma específica y desactivar las demás
+    async activateSignature(id, usuario_id) {
+        await db.query(
+            `UPDATE firmas_usuarios
+             SET activo = false
+             WHERE usuario_id = $1`,
+            [usuario_id]
+        );
+
+        const result = await db.query(
+            `UPDATE firmas_usuarios
+             SET activo = true
+             WHERE id = $1
+             RETURNING *`,
+            [id]
+        );
+
+        return result.rows[0];
+    }
+
+    // Desactivar todas las firmas de un usuario
+    async deactivateAllSignatures(usuario_id) {
+        await db.query(
+            `UPDATE firmas_usuarios
+             SET activo = false
+             WHERE usuario_id = $1`,
+            [usuario_id]
+        );
     }
 }
 

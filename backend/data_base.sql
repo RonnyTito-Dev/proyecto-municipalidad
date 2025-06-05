@@ -63,11 +63,12 @@ CREATE TABLE usuarios (
 -- Tabla de firmas de los usuarios (trabajadores municipales)
 CREATE TABLE firmas_usuarios (
     id SERIAL PRIMARY KEY,
-    usuario_id INT REFERENCES usuarios(id) UNIQUE,
-    ruta_firma VARCHAR(200) NOT NULL,             -- trim
+    usuario_id INT REFERENCES usuarios(id) NOT NULL,
+    ruta_firma VARCHAR(200) UNIQUE,             -- trim
     fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado_registro_id INT NOT NULL DEFAULT 1 REFERENCES estados_registro(id)
+    activo BOOLEAN NOT NULL DEFAULT FALSE          -- NUEVO: indica si la firma está desactivada
 );
+
 
 -- Tabla de canales de notificación (Email - WhatsApp)
 CREATE TABLE canales_notificacion (

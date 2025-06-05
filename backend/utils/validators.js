@@ -4,79 +4,97 @@
 const { z } = require('zod');
 
 // =================================== Title Case ===================================
-const toTitleCase = (str) => str.toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
-
+const toTitleCase = (str) =>
+  str
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/(^|\s)\p{L}/gu, (char) => char.toUpperCase());
 
 // =================================== Esquemas de Validacion ===================================
 
 // Esquema Id
-const schemaId = (label = '[id]') =>
+const schemaIdValidator = (entity = '[id]') =>
     z
         .number({
-            required_error: `El ID de ${label} es requerido`,
-            invalid_type_error: `El ID de ${label} debe ser numérico`
+            required_error: `El ID de ${entity} es requerido`,
+            invalid_type_error: `El ID de ${entity} debe ser numérico`
         })
-        .int({ message: `El ID de ${label} debe ser un número entero` })
-        .positive({ message: `El ID de ${label} debe ser un número positivo` });
+        .int({ message: `El ID de ${entity} debe ser un número entero` })
+        .positive({ message: `El ID de ${entity} debe ser un número positivo` });
 
 
 // Esquema Nombre
-const schemaName = (label = '[nombre]') =>
+const schemaFirstNameValidator = (entity = '[nombre]') =>
     z
         .string({
-            required_error: `El nombre de ${label} es requerido`,
-            invalid_type_error: `El nombre de ${label} debe ser un texto`
+            required_error: `El nombre de ${entity} es requerido`,
+            invalid_type_error: `El nombre de ${entity} debe ser un texto`
         })
         .trim()
-        .min(3, { message: `El nombre de ${label} debe tener al menos 3 caracteres` })
-        .max(50, { message: `El nombre de ${label} no debe superar los 50 caracteres` })
+        .min(3, { message: `El nombre de ${entity} debe tener al menos 3 caracteres` })
+        .max(50, { message: `El nombre de ${entity} no debe superar los 50 caracteres` })
+        .transform(val => toTitleCase(val));
+
+// Esquema Nombres de tablas
+const schemaNameValidator = (entity = '[nombre]') =>
+    z
+        .string({
+            required_error: `El nombre de ${entity} es requerido`,
+            invalid_type_error: `El nombre de ${entity} debe ser un texto`
+        })
+        .trim()
+        .min(3, { message: `El nombre de ${entity} debe tener al menos 3 caracteres` })
+        .max(50, { message: `El nombre de ${entity} no debe superar los 50 caracteres` })
         .transform(val => toTitleCase(val));
 
 
 // Schema Apellido
-const schemaLastName = (label = '[apellido]') =>
+const schemaLastNameValidator = (entity = '[apellido]') =>
     z
-        .string({ required_error: `El apellido de ${label} es requerido` })
+        .string({ required_error: `El apellido de ${entity} es requerido` })
         .trim()
-        .min(3, { message: `El apellido de ${label} debe tener al menos 3 caracteres` })
-        .max(50, { message: `El apellido de ${label} no debe superar los 50 caracteres` })
+        .min(3, { message: `El apellido de ${entity} debe tener al menos 3 caracteres` })
+        .max(50, { message: `El apellido de ${entity} no debe superar los 50 caracteres` })
         .transform(val => toTitleCase(val));
 
 
 // Schema descripcion Optional
-const schemaDescriptionOptional = (entity = '[Descripcion Opcional]')
+const schemaDescriptionOptionalValidator = (entity = '[Descripcion Opcional]') =>
     z
         .string()
         .trim()
         .max(120, { message: `La descripcion de ${entity} no debe superar los 120 caracteres` })
+        .or(z.literal(''))
+        .optional();
 
 
 // Schema DNI
-const schemaDNI = (entity = '[DNI]') =>
+const schemaDNIValidator = (entity = '[DNI]') =>
     z
         .string({
-            required_error: `El DNI del ${entity} es requerido`,
+            required_error: `El DNI de ${entity} es requerido`,
             invalid_type_error: `El DNI debe ser de tipo texto`
         })
         .trim()
-        .length(8, { message: `El DNI del ${entity} debe tener 8 caracteres` })
-        .regex(/^\d+$/, { message: `El DNI del ${entity} solo debe contener números` });
+        .length(8, { message: `El DNI de ${entity} debe tener 8 caracteres` })
+        .regex(/^\d+$/, { message: `El DNI de ${entity} solo debe contener números` });
 
 
 // Schema Celular
-const schemaPhone = (entity = '[celular]') =>
+const schemaPhoneValidator= (entity = '[celular]') =>
     z
         .string({
             required_error: `El celular del ${entity} es requerido`,
             invalid_type_error: `El celular del ${entity} debe ser de tipo texto`
         })
         .trim()
-        .length(9, `El celular del ${entity} debe tener 8 caracteres`)
+        .length(9, `El celular del ${entity} debe tener 9 caracteres`)
         .regex(/^\d+$/, { message: `El celular del ${entity} solo debe contener números` });
 
 
 // Schema Email
-const schemaEmail = (entity = '[email]') =>
+const schemaEmailValidator = (entity = '[email]') =>
     z
         .string({
             required_error: `El email del ${entity} es que requerido`,
@@ -89,30 +107,30 @@ const schemaEmail = (entity = '[email]') =>
 
 
 // Schema PIN
-const schemaPin = (entity = '[pin]') =>
+const schemaPinValidator = (entity = '[pin]') =>
     z
         .string({
-            require_error: `El PIN del ${entity} es requerido`,
-            invalid_type_error: `El PIN del ${entity} ser de tipo texto`
+            require_error: `El PIN ${entity} es requerido`,
+            invalid_type_error: `El PIN ${entity} ser de tipo texto`
         })
         .trim()
-        .length(8, { message: `El PIN del ${entity} debe tener 4 caracteres` })
-        .regex(/^\d+$/, { message: `El PIN del ${entity} solo debe contener números` });
+        .length(4, { message: `El PIN ${entity} debe tener 4 caracteres` })
+        .regex(/^\d+$/, { message: `El PIN ${entity} solo debe contener números` });
 
         
 // Schema Password
-const schemaPassword = (entity = '[contrasenia]') => 
+const schemaPasswordValidator = (entity = '[contrasenia]') => 
     z
         .string({
             required_error: `La contraseña del ${entity} es requerida`,
             invalid_type_error: `La contraseña del ${entity} debe ser un texto`
         })
         .trim()
-        .min(8, { message: `La contraseña del usuario ${entity} debe tener al menos 8 caracteres` });
+        .min(8, { message: `La contraseña del ${entity} debe tener al menos 8 caracteres` });
 
 
 // Schema Request and Tracking Code
-const schemaReqTrkCode = (entity = '[REQ y TRK]') =>
+const schemaReqTrkCodeValidator = (entity = '[REQ y TRK]') =>
         z   
             .string({
                 required_error: `El codigo de ${entity} es requerido`,
@@ -125,7 +143,7 @@ const schemaReqTrkCode = (entity = '[REQ y TRK]') =>
 
 
 // Schema address User
-const schemaAddress = (entity = '[direccion]') =>
+const schemaAddressValidator = (entity = '[direccion]') =>
     z
         .string({
             required_error: `La direccion del ${entity} es requerida`,
@@ -138,7 +156,7 @@ const schemaAddress = (entity = '[direccion]') =>
     
 
 // Scheam sector User
-const schemaSector = (entity = '[sector]') => 
+const schemaSectorValidator = (entity = '[sector]') => 
     z
         .string({
             required_error: `El sector del ${entity} es requerido`,
@@ -151,14 +169,14 @@ const schemaSector = (entity = '[sector]') =>
 
 
 // Schema booleano
-const schemaBoolean = (entity = '[Boolean]')
+const schemaBooleanValidator = (entity = '[Boolean]') =>
         z.boolean({
                 required_error: `El ${entity} es requerido`,
                 invalid_type_error: `El ${entity} debe ser de tipo booleano`
         });
 
 // Schema Asunt
-const schemaAsunt = (entity = '[Asunto]') =>
+const schemaAsuntValidator = (entity = '[Asunto]') =>
     z
         .string({
             required_error: `El ${entity} es requerido`,
@@ -170,7 +188,7 @@ const schemaAsunt = (entity = '[Asunto]') =>
         .transform(val => toTitleCase(val));
     
 // Schema content
-const schemaContent = (entity = '[Contenido]') =>
+const schemaContentValidator = (entity = '[Contenido]') =>
     z
         .string({
             require_error: `El ${entity} es requerido`,
@@ -181,7 +199,7 @@ const schemaContent = (entity = '[Contenido]') =>
 
 
 // Schema description required adjunto
-const schemaDescriptionReq = (entity = '[Descripcion Req]') => 
+const schemaDescriptionReqValidator = (entity = '[Descripcion Req]') => 
     z
         .string({
             required_error: `La descripcion de ${entity} es requerida`,
@@ -193,7 +211,7 @@ const schemaDescriptionReq = (entity = '[Descripcion Req]') =>
 
 
 // Schama URL
-const schemaURL = (entity = '[URL]') => 
+const schemaURLValidator = (entity = '[URL]') => 
     z
         .string({
             required_error: `La URL de ${entity} es requerida`,
@@ -206,7 +224,7 @@ const schemaURL = (entity = '[URL]') =>
 
 
 // Schema Notas
-const schemaNote = (entity = '[Nota]') => 
+const schemaNoteValidator = (entity = '[Nota]') => 
     z
         .string()
         .trim()
@@ -215,7 +233,7 @@ const schemaNote = (entity = '[Nota]') =>
 
 
 // Schema Message
-const schemaMessage = (entity = '[Mensaje]') => 
+const schemaMessageValidator = (entity = '[Mensaje]') => 
     z
         .string({
             required_error: `El mensaje de ${entity} es requerido`,
@@ -224,3 +242,137 @@ const schemaMessage = (entity = '[Mensaje]') =>
         .trim()
         .min(20, { message: `El mensaje ${entity} debe contener al menos 20 caracteres` })
         .max(300, { message: `El mensaje ${entity} no debe superar los 150 caracteres` });
+
+
+// Schema tabla afectada Optional
+const schemaAffectedTableValidator = (entity = '[Tabla afectada]') =>
+    z
+        .string()
+        .trim()
+        .max(50, { message: `La ${entity} no debe superar los 50 caracteres` })
+        .or(z.literal(''))
+        .optional();
+
+
+// =================================== Objetos para validar ===================================
+
+// Validador de login
+const userLoginValidator = z.object({
+    email: schemaEmailValidator('Usuario'),
+    contrasenia: schemaPasswordValidator('Usuario'),
+})
+
+
+
+
+// Validador para acciones, roles, estados, usuarios, canales notificacion, estado_solicitud, tipos_documento
+const simpleCreateValidator = (entity) => z.object({
+    nombre: schemaNameValidator(entity),
+    descripcion: schemaDescriptionOptionalValidator(entity),
+});
+
+
+// Validador para acciones, roles, estados, usuarios, canales notificacion, estado_solicitud, tipos_documento
+const simpleUpdatedValidator = (entity) => z.object({
+    id: schemaIdValidator(entity),
+    nombre: schemaNameValidator(entity),
+    descripcion: schemaDescriptionOptionalValidator(entity),
+});
+
+// Objeto de validacion para crear usuario
+const userCreateValidador = z.object({
+    nombres: schemaFirstNameValidator('Usuario'),
+    apellidos: schemaLastNameValidator('Usuario'),
+    dni: schemaDNIValidator('Usuario'),
+    email: schemaEmailValidator('Usuario'),
+    celular: schemaPhoneValidator('Usuario'),
+    pin_seguridad: schemaPinValidator('Usuario'),
+    contrasenia: schemaPasswordValidator('Usuario'),
+    rol_id: schemaIdValidator('Rol'),
+    area_id: schemaIdValidator('Area'),
+    estado_usuario_id: schemaIdValidator('Estado de Usuario')
+});
+
+// Objeto de validacion para actualizar usuario
+const userUpdatedValidador = z.object({
+    id: schemaIdValidator('Usuario'),
+    nombres: schemaFirstNameValidator('Usuario'),
+    apellidos: schemaLastNameValidator('Usuario'),
+    email: schemaEmailValidator('Usuario'),
+    celular: schemaPhoneValidator('Usuario')
+});
+
+// Objeto de validacion para actualizar contrasenia de usuario
+const userUpdatedPasswordValidador = z.object({
+    id: schemaIdValidator('Usuario'),
+    contrasenia_actual: schemaPasswordValidator('Actual'),
+    contrasenia_nueva: schemaPasswordValidator('Nueva')
+});
+
+// Objeto de validacion para actualizar pin de usuario
+const userUpdatedPinValidador = z.object({
+    id: schemaIdValidator('Usuario'),
+    pin_actual: schemaPinValidator('Actual'),
+    pin_nuevo: schemaPinValidator('Nuevo')
+});
+
+
+// Validador para crear un adjunto
+const attachmentCreateValidator = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    descripcion: schemaDescriptionReqValidator('Archivo Adjunto'),
+    url_archivo: schemaURLValidator('Archivo Adjunto')
+});
+
+
+// Validadot para crear, agregar un nuevo documento
+const docuementCreateValidator = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    tipo_documento_id: schemaIdValidator('Tipo de Documento'),
+    url_documento: schemaURLValidator('Documento'),
+})
+
+// Validador para logs
+const logsCreateValidator = z.object({
+    usuario_id: schemaIdValidator('Usuario'),
+    rol_id: schemaIdValidator('Rol'),
+    area_id: schemaIdValidator('Area'),
+    tabla_afectada: schemaAffectedTableValidator('Tabla Afectada'),
+    accion_id: schemaIdValidator('Accion'),
+})
+
+
+
+
+// =================================== Exportar Validator ===================================
+module.exports = {
+
+    // Validadores sueltos
+    schemaIdValidator,
+    schemaNameValidator,
+    schemaEmailValidator,
+    schemaDNIValidator,
+    schemaPhoneValidator,
+    schemaBooleanValidator,
+    schemaURLValidator,
+    schemaReqTrkCodeValidator,
+
+
+    // Objetos de validacion
+
+    userLoginValidator,
+
+    simpleCreateValidator,
+    simpleUpdatedValidator,
+
+    userCreateValidador,
+    userUpdatedValidador,
+    userUpdatedPasswordValidador,
+    userUpdatedPinValidador,
+
+    attachmentCreateValidator,
+
+    docuementCreateValidator,
+
+    logsCreateValidator,
+};

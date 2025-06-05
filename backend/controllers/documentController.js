@@ -31,7 +31,7 @@ class DocumentController {
 
     // Obtener documento por URL (pasada en query ?url=...)
     async getDocumentByURL(req, res, next) {
-        const { url } = req.query;
+        const { url } = req.params;
 
         try {
             const document = await documentService.getDocumentByURL(url);
@@ -69,10 +69,10 @@ class DocumentController {
 
     // Crear nuevo documento
     async createDocument(req, res, next) {
-        const data = req.body;
+        const { codigo_solicitud, tipo_documento_id, url_documento } = req.body;
 
         try {
-            const newDocument = await documentService.addDocument(data);
+            const newDocument = await documentService.addDocument({ codigo_solicitud, tipo_documento_id: Number(tipo_documento_id), url_documento });
             res.status(201).json(newDocument);
         } catch (error) {
             next(error);

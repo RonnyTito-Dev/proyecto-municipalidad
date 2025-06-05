@@ -48,7 +48,8 @@ INSERT INTO estados_usuario (nombre, descripcion) VALUES
 -- Usuarios de ejemplo para cada área principal
 INSERT INTO usuarios (nombres, apellidos, dni, email, celular, pin_seguridad, contrasenia, rol_id, area_id, estado_usuario_id)
 VALUES
-('Ronny', 'Tito', '74214623', 'ronny.tito@muni.gob.pe', '928001030', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 1, 1, 1),
+('Ronny', 'Tito', '74214090', 'ronny.tito@muni.gob.pe', '999222111', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 1, 1, 1),
+('Erickson', 'Riveros', '75689034', 'erickson.riveros@muni.gob.pe', '99988777', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 1, 1, 1),
 ('Pedro Jose', 'Lopez Gamarra', '87654321', 'pedro.lopez@muni.gob.pe', '912345678', '$2b$10$/P6kOcuBahbuL33pMzqiIuUnlVMgfthTg8LN/pfgRZb9rYENZamte', '$2b$10$KjK50MXm70IpDmswDbMUP.pe68uiuug/qIaXFllsLr6wr6S8.JSB2', 2, 2, 1);
 
 
@@ -56,8 +57,10 @@ VALUES
 -- Firmas digitales de los usuarios registrados
 INSERT INTO firmas_usuarios (usuario_id, ruta_firma)
 VALUES
-(1, '/firmas/usuario_1.png'),
-(2, '/firmas/usuario_2.png');
+(1, '/firmas/usuario_1/1.png'),
+(2, '/firmas/usuario_2/1.png'),
+(1, '/firmas/usuario_1/2.png'),
+(1, '/firmas/usuario_1/3.png');
 
 
 

@@ -38,7 +38,16 @@ class DocumentModel {
     // Obtener documentos activos por código de solicitud
     async getDocumentsByRequestCode(codigo_solicitud) {
         const result = await db.query(
-            'SELECT * FROM documentos WHERE codigo_solicitud = $1 ORDER BY fecha_creacion DESC',
+            `SELECT
+                doc.id,
+                doc.codigo_solicitud,
+                td.nombre AS tipo_documento,
+                doc.url_documento,
+                TO_CHAR(doc.fecha_creacion, 'DD/MM/YYYY HH24:MI:SS') AS fecha_creacion
+            FROM documentos doc
+            INNER JOIN tipos_documento td ON doc.tipo_documento_id = td.id
+            WHERE doc.codigo_solicitud = $1
+            ORDER BY doc.id DESC`,
             [codigo_solicitud]
         );
         return result.rows;

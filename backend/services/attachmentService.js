@@ -6,8 +6,8 @@ const attachmentModel = require('../models/attachmentModel');
 // Importar el modelo de solicitud
 const requestModel = require('../models/requestModel');
 
-// Importar el formatter
-const formatter = require('../utils/textFormatter');
+// Importar el validador de Zod
+const {  schemaIdValidator, schemaURLValidator, schemaReqTrkCodeValidator, attachmentCreateValidator } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -26,77 +26,74 @@ class AttachmentService {
     }
 
     // Obtener archivo adjunto por ID
-    async getAttachmentById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del archivo adjunto debe ser un número entero positivo');
-        }
+    async getAttachmentById(rowId) {
+
+        // Validar Id
+        const { data, error } = schemaIdValidator('Archivo Adjunto').safeParse(Number(rowId));
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const attachment = await attachmentModel.getAttachmentById(id);
-        if (!attachment) {
-            throw ApiError.notFound(`Archivo adjunto con ID ${id} no encontrado`);
-        }
+        if (!attachment) throw ApiError.notFound(`Archivo adjunto con ID ${id} no encontrado`);
+        
         return attachment;
     }
 
     // Obtener archivo adjunto por URL
-    async getAttachmentByURL(url) {
-        if (!url) {
-            throw ApiError.badRequest('La URL del archivo adjunto es requerida');
-        }
+    async getAttachmentByURL(rowUrl) {
 
-        const urlFormateada = formatter.trim(url);
-        const attachment = await attachmentModel.getAttachmentByURL(urlFormateada);
+        // Validar url
+        const { data, error } = schemaURLValidator('Archivo Adjunto').safeParse(rowUrl);
+        if(error) ApiError.badRequest(error.errors[0].message);
 
-        if (!attachment) {
-            throw ApiError.notFound(`Archivo adjunto con URL "${urlFormateada}" no encontrado`);
-        }
+        // Recupera url
+        const url = data;
+
+        const attachment = await attachmentModel.getAttachmentByURL(url);
+        if (!attachment) throw ApiError.notFound(`Archivo adjunto con URL "${url}" no encontrado`);
+        
         return attachment;
     }
 
     // Obtener archivos adjuntos por código de solicitud
-    async getAttachmentsByRequestCode(codigoSolicitud) {
-        if (!codigoSolicitud) {
-            throw ApiError.badRequest('El código de solicitud es requerido');
-        }
+    async getAttachmentsByRequestCode(rawRequestCode) {
 
-        const codigoFormateado = formatter.toUpperCase(codigoSolicitud);
-        const attachments = await attachmentModel.getAttachmentsByRequestCode(codigoFormateado);
+        // Validar codigo
+        const { data, error } = schemaReqTrkCodeValidator('Solicitud').safeParse(rawRequestCode);
+        if(error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!attachments || attachments.length === 0) {
-            throw ApiError.notFound(`No se encontraron archivos adjuntos para la solicitud "${codigoFormateado}"`);
-        }
+        // Recuperar codigo solicitud
+        const codigo_solicitud = data;
+
+        const attachments = await attachmentModel.getAttachmentsByRequestCode(codigo_solicitud);
+
+        if (!attachments || attachments.length === 0)  throw ApiError.notFound(`No se encontraron archivos adjuntos para la solicitud "${codigo_solicitud}"`);
+        
         return attachments;
     }
 
     // ============================= MÉTODOS POST ==============================
 
     // Crear un nuevo archivo adjunto
-    async addAttachment(data) {
-        if (!data.codigo_solicitud.trim()) {
-            throw ApiError.badRequest('El código de solicitud es requerido');
-        }
-        if (!data.descripcion.trim()) {
-            throw ApiError.badRequest('La descripción es requerida');
-        }
-        if (!data.url_archivo.trim()) {
-            throw ApiError.badRequest('La URL del archivo es requerida');
-        }
+    async addAttachment(rawData) {
 
-        const codigo_solicitud = formatter.toUpperCase(data.codigo_solicitud);
-        const descripcion = formatter.trim(data.descripcion);
-        const url_archivo = formatter.trim(data.url_archivo);
+        // Validar la data
+        const { data, error } = attachmentCreateValidator.safeParse(rawData);
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar datos
+        const { codigo_solicitud, descripcion, url_archivo } = data;
+
 
         // Verificar codigo de solicitud
         const existingRequestCode = await requestModel.getRequestByCode(codigo_solicitud);
-        if(!existingRequestCode){
-            throw ApiError.notFound('El codigo de solicitud no fue encontrado, y este es necesario')
-        }
+        if(!existingRequestCode) throw ApiError.notFound('El codigo de solicitud no fue encontrado, y este es necesario');
 
         // Verificar si ya existe un archivo con esa URL (único)
         const existing = await attachmentModel.getAttachmentByURL(url_archivo);
-        if (existing) {
-            throw ApiError.conflict('Ya existe un archivo adjunto con la misma URL');
-        }
+        if (existing) throw ApiError.conflict('Ya existe un archivo adjunto con la misma URL');
 
         return await attachmentModel.createAttachment({ codigo_solicitud, descripcion, url_archivo });
     }
