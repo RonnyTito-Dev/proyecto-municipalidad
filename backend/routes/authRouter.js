@@ -18,7 +18,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.post('/login', authController.login);
 
 // Cerrar sesión (logout)
-router.post('/logout', authController.logout);
+router.post('/logout', authMiddleware, authController.logout);
 
 // ======================================= SOLICITUD GET =======================================
 

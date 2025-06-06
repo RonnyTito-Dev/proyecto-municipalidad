@@ -55,7 +55,7 @@ class CodeGenerator {
         const trackingPrefix = muniTrackingCode;
 
         const timestamp = `${this.#getCompactTime()}_${this.#getCompactDate()}`;
-        const userTag = `${nombres.substring(0, 2)}-${apellidos.substring(0, 2)}`;
+        const userTag = `${nombres.substring(0, 2).toUpperCase()}-${apellidos.substring(0, 2).toUpperCase()}`;
 
         const requestCode = `${requestPrefix}_${timestamp}_${userTag}`;
         const trackingCode = `${trackingPrefix}_${timestamp}_${userTag}`

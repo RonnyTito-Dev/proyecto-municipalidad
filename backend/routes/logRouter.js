@@ -12,6 +12,7 @@ const logController = require('../controllers/logController');
 // Importamos el middleware auth
 const authMiddleware = require('../middleware/authMiddleware');
 
+
 // Proteger las rutas
 router.use(authMiddleware);
 
@@ -20,11 +21,11 @@ router.use(authMiddleware);
 // Obtener todos los logs
 router.get('/', logController.getLogs);
 
+
 // ======================================= SOLICITUD POST =======================================
 
 // Crear un nuevo log
 router.post('/', logController.createLog);
-
 
 // Exportamos el router
 module.exports = router;

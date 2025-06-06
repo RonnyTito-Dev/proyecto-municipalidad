@@ -21,7 +21,10 @@ class LogController {
 
     // Crear un nuevo log
     async createLog(req, res, next) {
-        const { usuario_id, rol_id, area_id, tabla_afectada, accion_id } = req.body;
+        const { tabla_afectada, accion_id } = req.body;
+        const { usuario_id, rol_id, area_id } = req.user;
+
+
         try {
             const newLog = await logService.addLog({ usuario_id, rol_id, area_id, tabla_afectada, accion_id });
             res.status(201).json(newLog);

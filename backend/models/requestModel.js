@@ -7,7 +7,7 @@ class RequestModel {
 
     // ============================= MÉTODOS GET ==============================
 
-    // Obtener todas las solicitudes - solo areas 1 y 2
+    // Obtener todas las solicitudes solo para super usuarios
     async getAllRequests() {
         const result = await db.query(
             `SELECT
@@ -15,9 +15,11 @@ class RequestModel {
                 so.codigo_solicitud,
                 so.nombres_ciudadano,
                 so.apellidos_ciudadano,
+                ar.id AS area_asignada_id,
                 ar.nombre AS area_asignada,
                 so.asunto,
                 TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
+                es.id AS estado_solicitud_id,
                 es.nombre AS estado_solicitud
             FROM solicitudes so
             INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
@@ -36,9 +38,11 @@ class RequestModel {
                 so.codigo_solicitud,
                 so.nombres_ciudadano,
                 so.apellidos_ciudadano,
-                ar.nombre AS area,
+                ar.id AS area_asignada_id,
+                ar.nombre AS area_asignada,
                 so.asunto,
                 TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
+                es.id AS estado_solicitud_id,
                 es.nombre AS estado_solicitud
             FROM solicitudes so
             INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
@@ -46,51 +50,6 @@ class RequestModel {
             WHERE so.area_asignada_id = $1
             ORDER BY so.id DESC`,
             [area_id]
-        );
-        return result.rows;
-    }
-
-    // Obtener solicitudes todas las solicitudes filtrado por estado solicitud
-    async getAllRequestsByStatus(estado_solicitud_id){
-        const result = await db.query(
-            `SELECT
-                so.id,
-                so.codigo_solicitud,
-                so.nombres_ciudadano,
-                so.apellidos_ciudadano,
-                ar.nombre AS area,
-                so.asunto,
-                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
-                es.nombre AS estado_solicitud
-            FROM solicitudes so
-            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
-            LEFT JOIN areas ar ON so.area_asignada_id = ar.id
-            WHERE so.estado_solicitud_id = $1
-            ORDER BY so.id DESC`,
-            [estado_solicitud_id]
-        );
-        return result.rows;
-    }
-
-    // Obtener todas las solicitudes filtradas por areas y estados
-    async getAllRequestsByAreaAndStatus(area_id, estado_solicitud_id) {
-        const result = await db.query(
-            `SELECT
-                so.id,
-                so.codigo_solicitud,
-                so.nombres_ciudadano,
-                so.apellidos_ciudadano,
-                ar.nombre AS area,
-                so.asunto,
-                TO_CHAR(so.fecha_envio, 'DD/MM/YYYY') AS fecha_envio,
-                es.nombre AS estado_solicitud
-            FROM solicitudes so
-            INNER JOIN estados_solicitud es ON so.estado_solicitud_id = es.id
-            LEFT JOIN areas ar ON so.area_asignada_id = ar.id
-            WHERE so.area_asignada_id = $1
-            AND so.estado_solicitud_id = $2
-            ORDER BY so.id DESC`,
-            [area_id, estado_solicitud_id]
         );
         return result.rows;
     }
@@ -146,6 +105,7 @@ class RequestModel {
                 so.email_ciudadano,
                 so.celular_ciudadano,
                 so.codigo_seguimiento,
+                so.pin_seguridad,
                 ars.nombre AS area_sugerida,
                 ara.nombre AS area_asignada,
                 so.asunto,

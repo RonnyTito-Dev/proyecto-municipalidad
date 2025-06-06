@@ -57,24 +57,22 @@ class RequestStatusHistoryController {
 
     // Crear un nuevo registro en historial de estados
     async createStatusHistory(req, res, next) {
-        const {
-            codigo_solicitud,
-            estado_solicitud_id,
-            area_actual_id,
-            area_destino_id,
-            notas,
-            usuario_id
-        } = req.body;
-
+        
         try {
+
+            const { codigo_solicitud } = req.params;
+            const { estado_solicitud_id, area_destino_id, notas } = req.body;
+            const { usuario_id, area_id } = req.user;
+
             const newHistory = await requestStatusHistoryService.addStatusHistory({
                 codigo_solicitud,
                 estado_solicitud_id,
-                area_actual_id,
+                area_actual_id: area_id,
                 area_destino_id,
                 notas,
                 usuario_id
             });
+
             res.status(201).json(newHistory);
         } catch (error) {
             next(error);

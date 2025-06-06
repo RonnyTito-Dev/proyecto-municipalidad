@@ -5,11 +5,11 @@ const { z } = require('zod');
 
 // =================================== Title Case ===================================
 const toTitleCase = (str) =>
-  str
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/(^|\s)\p{L}/gu, (char) => char.toUpperCase());
+    str
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/(^|\s)\p{L}/gu, (char) => char.toUpperCase());
 
 // =================================== Esquemas de Validacion ===================================
 
@@ -22,6 +22,23 @@ const schemaIdValidator = (entity = '[id]') =>
         })
         .int({ message: `El ID de ${entity} debe ser un número entero` })
         .positive({ message: `El ID de ${entity} debe ser un número positivo` });
+
+
+// Validador que acepta null o un número entero positivo
+const schemaNullableIdValidator = (entity = '[id]') =>
+    z.union([
+        z.literal(null),
+        z.number({
+            invalid_type_error: `El ID de ${entity} debe ser un número`,
+            required_error: `El ID de ${entity} es requerido`
+        })
+            .int({ message: `El ID de ${entity} debe ser un número entero` })
+            .positive({ message: `El ID de ${entity} debe ser un número positivo` }),
+    ]);
+
+
+
+
 
 
 // Esquema Nombre
@@ -82,7 +99,7 @@ const schemaDNIValidator = (entity = '[DNI]') =>
 
 
 // Schema Celular
-const schemaPhoneValidator= (entity = '[celular]') =>
+const schemaPhoneValidator = (entity = '[celular]') =>
     z
         .string({
             required_error: `El celular del ${entity} es requerido`,
@@ -117,9 +134,9 @@ const schemaPinValidator = (entity = '[pin]') =>
         .length(4, { message: `El PIN ${entity} debe tener 4 caracteres` })
         .regex(/^\d+$/, { message: `El PIN ${entity} solo debe contener números` });
 
-        
+
 // Schema Password
-const schemaPasswordValidator = (entity = '[contrasenia]') => 
+const schemaPasswordValidator = (entity = '[contrasenia]') =>
     z
         .string({
             required_error: `La contraseña del ${entity} es requerida`,
@@ -131,15 +148,15 @@ const schemaPasswordValidator = (entity = '[contrasenia]') =>
 
 // Schema Request and Tracking Code
 const schemaReqTrkCodeValidator = (entity = '[REQ y TRK]') =>
-        z   
-            .string({
-                required_error: `El codigo de ${entity} es requerido`,
-                invalid_type_error: `El codigo de ${entity} debe ser de tipo texto`
-            })
-            .trim()
-            .min(20, { message: `El codigo de ${entity} debe tener al menos 20 caracteres` })
-            .max(50, { message: `El codigo de ${entity} no debe superar los 50 caracteres` })
-            .toUpperCase();
+    z
+        .string({
+            required_error: `El codigo de ${entity} es requerido`,
+            invalid_type_error: `El codigo de ${entity} debe ser de tipo texto`
+        })
+        .trim()
+        .min(20, { message: `El codigo de ${entity} debe tener al menos 20 caracteres` })
+        .max(50, { message: `El codigo de ${entity} no debe superar los 50 caracteres` })
+        .toUpperCase();
 
 
 // Schema address User
@@ -153,10 +170,10 @@ const schemaAddressValidator = (entity = '[direccion]') =>
         .min(10, { message: `La direccion del ${entity} de tener al menos 10 caracteres` })
         .max(150, { message: `La direccion del ${entity} no debe superar los 150 caracteres` })
         .transform(val => toTitleCase(val));
-    
+
 
 // Scheam sector User
-const schemaSectorValidator = (entity = '[sector]') => 
+const schemaSectorValidator = (entity = '[sector]') =>
     z
         .string({
             required_error: `El sector del ${entity} es requerido`,
@@ -170,10 +187,10 @@ const schemaSectorValidator = (entity = '[sector]') =>
 
 // Schema booleano
 const schemaBooleanValidator = (entity = '[Boolean]') =>
-        z.boolean({
-                required_error: `El ${entity} es requerido`,
-                invalid_type_error: `El ${entity} debe ser de tipo booleano`
-        });
+    z.boolean({
+        required_error: `El ${entity} es requerido`,
+        invalid_type_error: `El ${entity} debe ser de tipo booleano`
+    });
 
 // Schema Asunt
 const schemaAsuntValidator = (entity = '[Asunto]') =>
@@ -186,7 +203,7 @@ const schemaAsuntValidator = (entity = '[Asunto]') =>
         .min(12, { message: `El ${entity} debe tener al menos 12 caracteres` })
         .max(200, { message: `El ${entity} no debe superar los 200 caracteres` })
         .transform(val => toTitleCase(val));
-    
+
 // Schema content
 const schemaContentValidator = (entity = '[Contenido]') =>
     z
@@ -199,7 +216,7 @@ const schemaContentValidator = (entity = '[Contenido]') =>
 
 
 // Schema description required adjunto
-const schemaDescriptionReqValidator = (entity = '[Descripcion Req]') => 
+const schemaDescriptionReqValidator = (entity = '[Descripcion Req]') =>
     z
         .string({
             required_error: `La descripcion de ${entity} es requerida`,
@@ -211,7 +228,7 @@ const schemaDescriptionReqValidator = (entity = '[Descripcion Req]') =>
 
 
 // Schama URL
-const schemaURLValidator = (entity = '[URL]') => 
+const schemaURLValidator = (entity = '[URL]') =>
     z
         .string({
             required_error: `La URL de ${entity} es requerida`,
@@ -224,7 +241,7 @@ const schemaURLValidator = (entity = '[URL]') =>
 
 
 // Schema Notas
-const schemaNoteValidator = (entity = '[Nota]') => 
+const schemaNoteValidator = (entity = '[Nota]') =>
     z
         .string()
         .trim()
@@ -233,7 +250,7 @@ const schemaNoteValidator = (entity = '[Nota]') =>
 
 
 // Schema Message
-const schemaMessageValidator = (entity = '[Mensaje]') => 
+const schemaMessageValidator = (entity = '[Mensaje]') =>
     z
         .string({
             required_error: `El mensaje de ${entity} es requerido`,
@@ -317,6 +334,48 @@ const userUpdatedPinValidador = z.object({
 });
 
 
+// Validador para crear una solicitud
+const requestCreateValidator = z.object({
+    nombres_ciudadano: schemaFirstNameValidator('Ciudadano'),
+    apellidos_ciudadano: schemaLastNameValidator('Ciudadano'),
+    dni_ciudadano: schemaDNIValidator('Ciudadano'),
+    direccion_ciudadano: schemaAddressValidator('Ciudadano'),
+    sector_ciudadano: schemaSectorValidator('Ciudadano'),
+    email_ciudadano: schemaEmailValidator('Ciudadano'),
+    celular_ciudadano: schemaPhoneValidator('Ciudadano'),
+    area_sugerida_id: schemaIdValidator('Area'),
+    asunto: schemaAsuntValidator('Asunto'),
+    contenido: schemaContentValidator('Contenido'),
+    pin_seguridad: schemaPinValidator('de Seguimiento'),
+    canal_notificacion_id: schemaIdValidator('Notificacion'),
+    canal_solicitud_id: schemaIdValidator('Canal de Solicitud'),
+    usuario_id: schemaNullableIdValidator('Usuario'),
+});
+
+
+
+// Validador para cambiar el area asignada
+const updateRequestArea = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    area_asignada_id: schemaIdValidator('Area'),
+});
+
+
+// Validador para cambiar el estado de una solicitud
+const updateRequestStatus = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    estado_solicitud_id: schemaIdValidator('Estado de solicitud'),
+});
+
+
+// Validador para cambiar el area asignada y es estado de solicitud
+const updateRequestAreaAndStatus = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    estado_solicitud_id: schemaIdValidator('Estado de solicitud'),
+    area_asignada_id: schemaIdValidator('Area'),
+});
+
+
 // Validador para crear un adjunto
 const attachmentCreateValidator = z.object({
     codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
@@ -332,14 +391,41 @@ const docuementCreateValidator = z.object({
     url_documento: schemaURLValidator('Documento'),
 })
 
+
+// Validador de tracking de solicitud
+const requestTrackingValidator = z.object({
+    codigo_seguimiento: schemaReqTrkCodeValidator('Seguimiento'),
+    pin_seguridad:  schemaPinValidator('de Rastreo de Solicitud'),
+})
+
+// Validador para crear en historial de estados
+const historyRequestCreatorValidator = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    estado_solicitud_id: schemaIdValidator('Estado de Solicitud'),
+    area_actual_id: schemaNullableIdValidator('Area Actual'),
+    area_destino_id: schemaNullableIdValidator('Area Destino'),
+    notas: schemaNoteValidator('Historia'),
+    usuario_id: schemaNullableIdValidator('Usuario'),
+})
+
+
+// Validador para crar notificaciones
+const notificationCreatorValidator = z.object({
+    codigo_solicitud: schemaReqTrkCodeValidator('Solicitud'),
+    canal_notificacion_id: schemaIdValidator('Canal de Notificacion'),
+    mensaje: schemaMessageValidator('Notificacion'),
+});
+
+
+
 // Validador para logs
 const logsCreateValidator = z.object({
     usuario_id: schemaIdValidator('Usuario'),
     rol_id: schemaIdValidator('Rol'),
     area_id: schemaIdValidator('Area'),
     tabla_afectada: schemaAffectedTableValidator('Tabla Afectada'),
-    accion_id: schemaIdValidator('Accion'),
-})
+    accion_id: schemaIdValidator('Accion'), // obligatorio
+});
 
 
 
@@ -360,19 +446,38 @@ module.exports = {
 
     // Objetos de validacion
 
-    userLoginValidator,
+    
 
     simpleCreateValidator,
     simpleUpdatedValidator,
 
+    // Usuario
+    userLoginValidator,
     userCreateValidador,
     userUpdatedValidador,
     userUpdatedPasswordValidador,
     userUpdatedPinValidador,
 
+    // Solicitud
+    requestCreateValidator,
+    requestTrackingValidator,
+    updateRequestArea,
+    updateRequestStatus,
+    updateRequestAreaAndStatus,
+
+    // Adjuntos
     attachmentCreateValidator,
 
+    // Documentos
     docuementCreateValidator,
 
+    // Historial Solicitud
+    historyRequestCreatorValidator,
+
+    // Notificaciones
+    notificationCreatorValidator,
+    
+
+    // Logs
     logsCreateValidator,
 };

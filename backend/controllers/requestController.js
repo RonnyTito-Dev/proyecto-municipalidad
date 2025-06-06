@@ -2,41 +2,36 @@
 
 // Importamos el service
 const requestService = require('../services/requestService');
+const requestHandlerService = require('../utils/requestHandlerService');
+
+// Importamos el manejador de solicitudes
+const RequestHandlerService = require('../utils/requestHandlerService');
 
 class RequestController {
 
     // ========================================== MÉTODOS GET ==========================================
 
-    // Obtener todas las solicitudes - solo areas 1 y 2
+    // Obtener todas las solicitudes
     async getAllRequests(req, res, next) {
         try {
-            const area_id = req.user.area_usuario_id;
-            const estado_solicitud_id = req.query.estado_solicitud_id
-                ? parseInt(req.query.estado_solicitud_id) : null;
 
+            // Obtenemos el area
+            const { area_id } = req.user;
+
+            // Almacenar la respuesta
             let requests;
 
             // Si es super admin o admin
             if (area_id === 1 || area_id === 2) {
 
                 // Si trae estado de solicitud
-                if (estado_solicitud_id) {
-                    requests = await requestService.getAllRequestsByStatus(estado_solicitud_id);
-                }
-                else {
-                    requests = await requestService.getRequests();
-                }
+                requests = await requestService.getRequests();
 
             } else {
-
                 // Si solo es una area sin privilegios
-                if (estado_solicitud_id) {
-                    requests = await requestService.getAllRequestsByAreaAndStatus(area_id, estado_solicitud_id);
-                }
-                else {
-                    requests = await requestService.getAllRequestsByArea(area_id);
-                }
+                requests = await requestService.getAllRequestsByArea(area_id);
             }
+
             res.json(requests);
         } catch (error) {
             next(error);
@@ -74,7 +69,7 @@ class RequestController {
         const { codigo_seguimiento, pin_seguridad } = req.body;
 
         try {
-            const request = await requestService.getRequestByTrackingCodeAndPin(codigo_seguimiento, pin_seguridad);
+            const request = await requestService.getRequestByTrackingCodeAndPin({ codigo_seguimiento, pin_seguridad });
             res.json(request);
         } catch (error) {
             next(error);
@@ -86,8 +81,18 @@ class RequestController {
 
     // Crear una nueva solicitud
     async createRequest(req, res, next) {
+        
         try {
-            const newRequest = await requestService.addRequest(req.body);
+
+            const data = { 
+                ...req.body, 
+                usuario_id: req.user?.usuario_id ?? null
+            };
+
+            const newRequest = await requestService.addRequest(data);
+
+            // const newRequest = await requestHandlerService.creatingRequest(data);
+
             res.status(201).json(newRequest);
         } catch (error) {
             next(error);
@@ -102,7 +107,7 @@ class RequestController {
         const { estado_solicitud_id } = req.body;
 
         try {
-            const updatedRequest = await requestService.modifyRequestStatus(codigo_solicitud, estado_solicitud_id);
+            const updatedRequest = await requestService.modifyRequestStatus({ codigo_solicitud, estado_solicitud_id });
             res.json(updatedRequest);
         } catch (error) {
             next(error);
@@ -115,7 +120,7 @@ class RequestController {
         const { area_asignada_id } = req.body;
 
         try {
-            const updatedRequest = await requestService.modifyRequestAsignArea(codigo_solicitud, area_asignada_id);
+            const updatedRequest = await requestService.modifyRequestAsignArea({ codigo_solicitud, area_asignada_id });
             res.json(updatedRequest);
         } catch (error) {
             next(error);
@@ -128,13 +133,27 @@ class RequestController {
         const { estado_solicitud_id, area_asignada_id } = req.body;
 
         try {
-            const updatedRequest = await requestService.modifyStatusAndAreaAsign(codigo_solicitud, estado_solicitud_id, area_asignada_id);
+            const updatedRequest = await requestService.modifyStatusAndAreaAsign({ codigo_solicitud, estado_solicitud_id, area_asignada_id });
             res.json(updatedRequest);
         } catch (error) {
             next(error);
         }
     }
 
+    // ========================================== MÉTODO OTROS PUT ==========================================
+
+    // Recepcionar solicitud
+    async receiveRequest(req, res, next) {
+        const { codigo_solicitud } = req.params;
+        const { estado_solicitud_id, area_asignada_id } = req.body;
+
+        try {
+            const updatedRequest = await requestService.modifyStatusAndAreaAsign({ codigo_solicitud, estado_solicitud_id, area_asignada_id });
+            res.json(updatedRequest);
+        } catch (error) {
+            next(error);
+        }
+    }
 
 }
 

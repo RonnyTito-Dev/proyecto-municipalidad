@@ -55,8 +55,8 @@ class AuthController {
                     nombres_usuario: user.nombres_usuario,
                     email_usuario: user.email_usuario,
                     pin_usuario: user.pin_usuario,
-                    rol_usuario_id: user.rol_usuario_id,
-                    area_usuario_id: user.area_usuario_id,
+                    rol_id: user.rol_id,
+                    area_id: user.area_id,
                     estado_usuario_id: user.estado_usuario_id
                 }
             });
@@ -71,6 +71,10 @@ class AuthController {
     // Cerrar sesión (elimina la cookie)
     async logout(req, res, next) {
         try {
+
+            // Pasarle al service
+            await authService.logout(req, res);
+
             res.clearCookie('authToken', {
                 httpOnly: true,
                 secure: project_env,

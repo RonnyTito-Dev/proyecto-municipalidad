@@ -26,10 +26,10 @@ class AttachmentService {
     }
 
     // Obtener archivo adjunto por ID
-    async getAttachmentById(rowId) {
+    async getAttachmentById(rawId) {
 
         // Validar Id
-        const { data, error } = schemaIdValidator('Archivo Adjunto').safeParse(Number(rowId));
+        const { data, error } = schemaIdValidator('Archivo Adjunto').safeParse(Number(rawId));
         if(error) throw ApiError.badRequest(error.errors[0].message);
 
         // Recuperar el id
@@ -42,10 +42,10 @@ class AttachmentService {
     }
 
     // Obtener archivo adjunto por URL
-    async getAttachmentByURL(rowUrl) {
+    async getAttachmentByURL(rawUrl) {
 
         // Validar url
-        const { data, error } = schemaURLValidator('Archivo Adjunto').safeParse(rowUrl);
+        const { data, error } = schemaURLValidator('Archivo Adjunto').safeParse(rawUrl);
         if(error) ApiError.badRequest(error.errors[0].message);
 
         // Recupera url

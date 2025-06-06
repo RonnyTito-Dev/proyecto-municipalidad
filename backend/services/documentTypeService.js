@@ -3,8 +3,8 @@
 // Importamos el modelo
 const documentTypeModel = require('../models/documentTypeModel');
 
-// Importamos el formater
-const formatter = require('../utils/textFormatter');
+// Importamos el validador de zod
+const { schemaIdValidator, schemaNameValidator, simpleCreateValidator, simpleUpdatedValidator } = require('../utils/validators');
 
 // Importamos el manejo de errores
 const ApiError = require('../errors/apiError');
@@ -41,49 +41,53 @@ class DocumentTypeService {
     }
 
     // Obtener un tipo de documento por ID
-    async getDocumentTypeById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del tipo de documento debe ser un número entero positivo');
-        }
+    async getDocumentTypeById(rawId) {
+
+        // Validar Id
+        const { data, error } = schemaIdValidator('Tipo de documento').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const type = await documentTypeModel.getDocumentTypeById(id);
-        if (!type) {
-            throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
-        }
+        if (!type) throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
+
         return type;
     }
 
     // Obtener un tipo de documento por nombre
-    async getDocumentTypeByName(nombre) {
-        if (!nombre) {
-            throw ApiError.badRequest('El nombre del tipo de documento es requerido');
-        }
+    async getDocumentTypeByName(rawName) {
 
-        const nombreFormateado = formatter.toTitleCase(nombre);
-        const type = await documentTypeModel.getDocumentTypeByName(nombreFormateado);
+        // Validar el nombre
+        const { data, error } = schemaNameValidator('Tipo de documento').safeParse(rawName);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!type) {
-            throw ApiError.notFound(`Tipo de documento con nombre "${nombreFormateado}" no encontrado`);
-        }
+        // recuperar el nombre
+        const nombre = data;
+
+        const type = await documentTypeModel.getDocumentTypeByName(nombre);
+        if (!type) throw ApiError.notFound(`Tipo de documento con nombre "${nombre}" no encontrado`);
+
         return type;
     }
 
     // ============================= MÉTODOS POST ==============================
 
     // Crear un nuevo tipo de documento
-    async addDocumentType(data) {
-        if (!data.nombre) {
-            throw ApiError.badRequest('El nombre del tipo de documento es requerido');
-        }
+    async addDocumentType(rawData) {
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Validar data
+        const { data, error } = simpleCreateValidator('Tipo Documento').safeParse(rawData);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar datos
+        const { nombre, descripcion } = data;
+
 
         // Verificar si ya existe un tipo con ese nombre
         const existing = await documentTypeModel.getDocumentTypeByName(nombre);
-        if (existing) {
-            throw ApiError.conflict(`El tipo de documento con nombre "${nombre}" ya está registrado`);
-        }
+        if (existing) throw ApiError.conflict(`El tipo de documento con nombre "${nombre}" ya está registrado`);
 
         return await documentTypeModel.createDocumentType({ nombre, descripcion });
     }
@@ -91,23 +95,19 @@ class DocumentTypeService {
     // ============================= MÉTODOS PUT ==============================
 
     // Actualizar un tipo de documento por ID
-    async modifyDocumentType(id, data) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del tipo de documento debe ser un número entero positivo');
-        }
+    async modifyDocumentType(rawId, rawData) {
 
-        if (!data.nombre) {
-            throw ApiError.badRequest('El nombre del tipo de documento es requerido');
-        }
+        // validar datos
+        const { data, error } = simpleUpdatedValidator('Tipo Documento').safeParse({ id: Number(rawId), ...rawData });
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        const nombre = formatter.toTitleCase(data.nombre);
-        const descripcion = formatter.trim(data.descripcion);
+        // Recuperar datos
+        const { id, nombre, descripcion } = data;
+
 
         // Verificar si el tipo de documento existe
         const existing = await documentTypeModel.getDocumentTypeById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
-        }
+        if (!existing) throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
 
         // Validar si no hay cambios
         if (nombre === existing.nombre && descripcion === existing.descripcion) {
@@ -116,9 +116,7 @@ class DocumentTypeService {
 
         // Verificar si el nuevo nombre está en uso por otro tipo
         const nombreDuplicado = await documentTypeModel.getDocumentTypeByName(nombre);
-        if (nombreDuplicado && nombreDuplicado.id !== id) {
-            throw ApiError.conflict(`El tipo de documento con nombre "${nombre}" ya está registrado por otro tipo`);
-        }
+        if (nombreDuplicado && nombreDuplicado.id !== id) throw ApiError.conflict(`El tipo de documento con nombre "${nombre}" ya está registrado por otro tipo`);
 
         return await documentTypeModel.updateDocumentType(id, { nombre, descripcion });
     }
@@ -126,30 +124,34 @@ class DocumentTypeService {
     // ============================= MÉTODOS PATCH ==============================
 
     // Eliminado lógica
-    async removeDocumentType(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del tipo de documento debe ser un número entero positivo');
-        }
+    async removeDocumentType(rawId) {
+
+        // Validar Id
+        const { data, error } = schemaIdValidator('Tipo de documento').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const existing = await documentTypeModel.getDocumentTypeById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
-        }
+        if (!existing) throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
 
         await documentTypeModel.deleteDocumentType(id);
     }
 
 
     // Restauracion lógica
-    async restoreDocumentType(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del tipo de documento debe ser un número entero positivo');
-        }
+    async restoreDocumentType(rawId) {
+
+        // Validar Id
+        const { data, error } = schemaIdValidator('Tipo de documento').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const existing = await documentTypeModel.getDocumentTypeById(id);
-        if (!existing) {
-            throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
-        }
+        if (!existing) throw ApiError.notFound(`Tipo de documento con ID ${id} no encontrado`);
 
         await documentTypeModel.restoreDocumentType(id);
     }

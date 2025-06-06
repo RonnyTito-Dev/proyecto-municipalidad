@@ -16,7 +16,13 @@ const authMiddleware = require('../middleware/authMiddleware');
 // ========================== RUTA PÚBLICA PARA CIUDADANOS ==========================
 
 // Obtener solicitud por código de seguimiento y PIN (ciudadano sin autenticación)
-router.post('/seguimiento-ciudadano', requestController.getRequestByTrackingCodeAndPin);
+router.post('/seguimiento', requestController.getRequestByTrackingCodeAndPin);
+
+
+// ======================================= SOLICITUD POST =======================================
+
+// Crear una nueva solicitud
+router.post('/public', requestController.createRequest);
 
 
 // Proteger las rutas
@@ -24,14 +30,14 @@ router.use(authMiddleware);
 
 // ======================================= SOLICITUD GET =======================================
 
-// Obtener todas las solicitudes (sin importar estado)
+// Obtener todas las solicitudes
 router.get('/', requestController.getAllRequests);
 
 // Obtener solicitud por código de solicitud
-router.get('/solicitud/:codigo', requestController.getRequestByRequestCode);
+router.get('/solicitud/:codigo_solicitud', requestController.getRequestByRequestCode);
 
 // Obtener solicitud por código de seguimiento
-router.get('/seguimiento/:codigo', requestController.getRequestByTrackingCode);
+router.get('/seguimiento/:codigo_seguimiento', requestController.getRequestByTrackingCode);
 
 // ======================================= SOLICITUD POST =======================================
 
@@ -40,14 +46,23 @@ router.post('/', requestController.createRequest);
 
 // ======================================= SOLICITUD PUT =======================================
 
-// Actualizar solo el estado de una solicitud
-router.put('/estado/:codigo', requestController.updateRequestStatus);
+// // Recepcionar una solicitud
+// router.put('/:codigo-solicitud/recepcionar', requestController.receiveRequest);
 
-// Actualizar solo el área actual de una solicitud
-router.put('/area/:codigo', requestController.updateRequestAsignArea);
+// // Marcar solicitud como en trabajo
+// router.put('/:codigo-solicitud/trabajar', requestController.workOnRequest);
 
-// Actualizar estado y área de una solicitud
-router.put('/estado-area/:codigo', requestController.updateRequestStatusAndAsignArea);
+// // Derivar la solicitud a otra área
+// router.put('/:codigo-solicitud/derivar', requestController.forwardRequest);
+
+// // Aprobar o cerrar la solicitud
+// router.put('/:codigo-solicitud/aprobar', requestController.approveRequest);
+
+// // Rechazar la solicitud
+// router.put('/:codigo-solicitud/rechazar', requestController.rejectRequest);
+
+// // Anular (cancelar) la solicitud
+// router.put('/:codigo-solicitud/anular', requestController.cancelRequest);
 
 
 // Exportamos el router

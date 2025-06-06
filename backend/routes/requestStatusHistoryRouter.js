@@ -32,7 +32,7 @@ router.get('/:id', requestStatusHistoryController.getStatusHistoryById);
 // ============================== SOLICITUD POST ==============================
 
 // Crear un nuevo registro en historial de estados
-router.post('/', requestStatusHistoryController.createStatusHistory);
+router.post('/:codigo_solicitud', requestStatusHistoryController.createStatusHistory);
 
 
 // Exportamos el router

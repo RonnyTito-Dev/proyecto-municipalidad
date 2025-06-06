@@ -72,7 +72,7 @@ INSERT INTO canales_notificacion (nombre, descripcion) VALUES
 
 -- Estados de la solicitud
 INSERT INTO estados_solicitud (nombre, descripcion) VALUES
-('Pendiente', 'Recibido por el sistema, aún sin procesar'),
+('Pendiente', 'Recibido por el area, aún sin procesar ni ver'),
 ('Recepcionado', 'La solicitud ha sido leída o visualizada por el área, pero aún no se trabaja en ella.'),
 ('En Proceso', 'El área ha comenzado a trabajar en la solicitud.'),
 ('Derivado', 'La solicitud fue derivada a otra área para su atención.'),

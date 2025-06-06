@@ -4,7 +4,7 @@
 const logModel = require('../models/logModel');
 
 // Importar el validador de Zod
-const { logsCreateValidator  } = require('../utils/validators');
+const { logsCreateValidator } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -30,12 +30,12 @@ class LogService {
 
         // Validar data
         const { data, error } = logsCreateValidator.safeParse(rawData);
-        if(error) throw ApiError.badRequest(error.errors[0].message);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
         // Recuperar los datos
-        const { usuario_id, area_id, tabla_afectada, accion_id, descripcion } = data;
+        const { usuario_id, rol_id, area_id, tabla_afectada, accion_id } = data;
 
-        return await logModel.createLog({ usuario_id, area_id, tabla_afectada, accion_id, descripcion });
+        return await logModel.createLog({ usuario_id, rol_id, area_id, tabla_afectada, accion_id });
     }
 
 

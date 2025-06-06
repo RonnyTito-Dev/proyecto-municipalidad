@@ -3,8 +3,11 @@
 // Importar el modelo
 const requestStatusHistoryModel = require('../models/requestStatusHistoryModel');
 
-// Importar el formatter
-const formatter = require('../utils/textFormatter');
+// Importar el modelo de request
+const requestModel = require('../models/requestModel');
+
+// Importar el validador el Zod
+const { schemaIdValidator, schemaReqTrkCodeValidator, historyRequestCreatorValidator } = require('../utils/validators');
 
 // Importar los errores
 const ApiError = require('../errors/apiError');
@@ -23,83 +26,82 @@ class RequestStatusHistoryService {
     }
 
     // Obtener historial por código de solicitud - crudo
-    async getStatusHistoriesByRequestCode(codigo_solicitud) {
-        if (!codigo_solicitud) {
-            throw ApiError.badRequest('El código de la solicitud es requerido');
-        }
+    async getStatusHistoriesByRequestCode(rawRequestCode) {
 
-        const codigo = formatter.trim(codigo_solicitud);
-        const histories = await requestStatusHistoryModel.getStatusHistoriesByRequestCode(codigo);
+        // Validar codigo solicitud
+        const { data, error } = schemaReqTrkCodeValidator('Solicitud').safeParse(rawRequestCode);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!histories || histories.length === 0) {
-            throw ApiError.notFound(`No se encontró historial para la solicitud con código "${codigo}"`);
-        }
+        // Recuperar codigo seguimiento
+        const codigo_solicitud = data;
+
+        const histories = await requestStatusHistoryModel.getStatusHistoriesByRequestCode(codigo_solicitud);
+        if (!histories || histories.length === 0) throw ApiError.notFound(`No se encontró historial para la solicitud con código "${codigo_solicitud}"`);
+
         return histories;
     }
 
     // Obtener historial por código de sequimiento - detallado
-    async getStatusHistoriesByTrackingCode(codigo_seguimiento) {
-        if (!codigo_seguimiento) {
-            throw ApiError.badRequest('El código de seguimiento es requerido');
-        }
+    async getStatusHistoriesByTrackingCode(rawTrackingCode) {
 
-        const codigo = formatter.trim(codigo_seguimiento);
-        const histories = await requestStatusHistoryModel.getStatusHistoriesByTrackingCode(codigo);
+        // Validar codigo seguiminto
+        const { data, error } = schemaReqTrkCodeValidator('Seguimiento').safeParse(rawTrackingCode);
+        if (error) throw ApiError.badRequest(error.errors[0].message);
 
-        if (!histories || histories.length === 0) {
-            throw ApiError.notFound(`No se encontró historial para la solicitud con código de seguimiento "${codigo}"`);
-        }
+        // recuperar codigo seguimiento
+        const codigo_seguimiento = data;
+
+        const histories = await requestStatusHistoryModel.getStatusHistoriesByTrackingCode(codigo_seguimiento);
+
+        if (!histories || histories.length === 0) throw ApiError.notFound(`No se encontró historial para la solicitud con código de seguimiento "${codigo_seguimiento}"`);
+
         return histories;
     }
 
     // Obtener un registro del historial por ID
-    async getStatusHistoryById(id) {
-        if (!id || isNaN(id) || Number(id) <= 0 || !Number.isInteger(Number(id))) {
-            throw ApiError.badRequest('El ID del historial debe ser un número entero positivo');
-        }
+    async getStatusHistoryById(rawId) {
+
+        // Validar el id
+        const { data, error } = schemaIdValidator('Historial').safeParse(Number(rawId));
+        if (error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recuperar el id
+        const id = data;
 
         const history = await requestStatusHistoryModel.getStatusHistoryById(id);
-        if (!history) {
-            throw ApiError.notFound(`Historial de estado con ID ${id} no encontrado`);
-        }
+        if (!history || history.length === 0) throw ApiError.notFound(`Historial de estado con ID ${id} no encontrado`);
+
         return history;
     }
 
     // ============================= MÉTODOS POST ==============================
 
     // Crear un nuevo registro en historial de estados
-    async addStatusHistory(data) {
-        const {
-            codigo_solicitud,
-            estado_solicitud_id,
-            area_actual_id,
-            area_destino_id,
-            notas,
-            usuario_id
+    async addStatusHistory(rawData) {
+        
+        // Formateamos
+        const formatData = {
+            codigo_solicitud: rawData.codigo_solicitud,
+            estado_solicitud_id: Number(rawData.estado_solicitud_id),
+            area_actual_id: rawData.area_actual_id ? Number(rawData.area_actual_id) : null,
+            area_destino_id: rawData.area_destino_id ? Number(rawData.area_destino_id) : null,
+            notas: rawData.notas,
+            usuario_id: rawData.usuario_id ? Number(rawData.usuario_id) : null,
+        }
+
+        // Validar data
+        const { data, error } = historyRequestCreatorValidator.safeParse(formatData);
+        if(error) throw ApiError.badRequest(error.errors[0].message);
+
+        // Recupearar datos
+        const { codigo_solicitud, estado_solicitud_id, area_actual_id, area_destino_id, notas, usuario_id
         } = data;
 
-        if (!codigo_solicitud) {
-            throw ApiError.badRequest('El código de la solicitud es requerido');
-        }
-        if (!estado_solicitud_id || isNaN(estado_solicitud_id) || Number(estado_solicitud_id) <= 0 || !Number.isInteger(Number(estado_solicitud_id))) {
-            throw ApiError.badRequest('El ID del estado de solicitud debe ser un número entero positivo');
-        }
+        // Verificar si existe la solicitud
+        const existingRequest = await requestModel.getRequestByCode(codigo_solicitud);
+        if(!existingRequest || existingRequest.length === 0) throw ApiError.badRequest(`No existe una solicitud con ese codigo`);
 
-        const codigo = formatter.toUpperCase(codigo_solicitud);
-        const estado_solicitud = estado_solicitud_id;
-        const area_actual = area_actual_id ? area_actual_id : null;
-        const area_destino = area_destino_id ? area_destino_id : null;
-        const nota = formatter.trim(notas);
-        const usuario = usuario_id ? usuario_id : null;
-
-        return await requestStatusHistoryModel.createStatusHistory({
-            codigo_solicitud: codigo,
-            estado_solicitud_id: Number(estado_solicitud),
-            area_actual_id: Number(area_actual),
-            area_destino_id: Number(area_destino),
-            notas: nota,
-            usuario_id: Number(usuario),
-        });
+        return await requestStatusHistoryModel.createStatusHistory({ codigo_solicitud, estado_solicitud_id, area_actual_id, area_destino_id, notas, usuario_id });
     }
 
 }

@@ -48,15 +48,12 @@ class RequestStatusHistoryModel {
                 ara.nombre AS area_actual,
                 ard.nombre AS area_destino,
                 hes.notas,
-                TO_CHAR(hes.fecha_registro, 'DD/MM/YYYY HH24:MI:SS') AS fecha_registro,
-                er.id AS estado_id,
-                er.nombre AS estado
+                TO_CHAR(hes.fecha_registro, 'DD/MM/YYYY HH24:MI:SS') AS fecha_registro
 				FROM historial_estados_solicitud hes
             INNER JOIN solicitudes so ON hes.codigo_solicitud = so.codigo_solicitud
             INNER JOIN estados_solicitud es ON hes.estado_solicitud_id = es.id
             LEFT JOIN areas ara ON hes.area_actual_id = ara.id
             LEFT JOIN areas ard ON hes.area_destino_id = ard.id
-            INNER JOIN estados_registro er ON hes.estado_registro_id = er.id
             WHERE so.codigo_seguimiento = $1
             ORDER BY hes.id DESC`,
             [codigo_seguimiento]
@@ -81,7 +78,7 @@ class RequestStatusHistoryModel {
         codigo_solicitud,
         estado_solicitud_id,
         area_actual_id,
-        area_destiono_id,
+        area_destino_id,
         notas,
         usuario_id
     }) {
@@ -95,7 +92,7 @@ class RequestStatusHistoryModel {
                 usuario_id
             ) VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *`,
-            [codigo_solicitud, estado_solicitud_id, area_actual_id, area_destiono_id, notas, usuario_id]
+            [codigo_solicitud, estado_solicitud_id, area_actual_id, area_destino_id, notas, usuario_id]
         );
         return result.rows[0];
     }

@@ -19,10 +19,10 @@ class NotificationController {
 
     // Método para obtener notificaciones por código de solicitud
     async getNotificationsByRequestCode(req, res, next) {
-        const { codigo } = req.params;
+        const { codigo_solicitud } = req.params;
 
         try {
-            const notifications = await notificationService.getNotificationsByRequestCode(codigo);
+            const notifications = await notificationService.getNotificationsByRequestCode(codigo_solicitud);
             res.json(notifications);
         } catch (error) {
             next(error);

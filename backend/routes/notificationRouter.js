@@ -21,7 +21,7 @@ router.use(authMiddleware);
 router.get('/', notificationController.getAllNotifications);
 
 // Obtener notificaciones por código de solicitud
-router.get('/codigo/:codigo', notificationController.getNotificationsByRequestCode);
+router.get('/codigo-solicitud/:codigo_solicitud', notificationController.getNotificationsByRequestCode);
 
 // Obtener una notificación por ID
 router.get('/:id', notificationController.getNotificationById);
