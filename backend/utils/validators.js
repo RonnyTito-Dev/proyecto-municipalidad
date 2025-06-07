@@ -258,7 +258,7 @@ const schemaMessageValidator = (entity = '[Mensaje]') =>
         })
         .trim()
         .min(20, { message: `El mensaje ${entity} debe contener al menos 20 caracteres` })
-        .max(300, { message: `El mensaje ${entity} no debe superar los 150 caracteres` });
+        .max(500, { message: `El mensaje ${entity} no debe superar los 500 caracteres` });
 
 
 // Schema tabla afectada Optional

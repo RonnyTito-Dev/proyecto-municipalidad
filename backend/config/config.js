@@ -36,5 +36,16 @@ module.exports = {
 
     project_config: {
         project_env: process.env.PROJECT_ENV === 'production',
+    },
+
+    email_service: {
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT, 10) || 587,
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: {
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
+        requireTLS: true // fuerza STARTTLS si estás en puerto 587
     }
 };

@@ -49,8 +49,16 @@ INSERT INTO estados_usuario (nombre, descripcion) VALUES
 INSERT INTO usuarios (nombres, apellidos, dni, email, celular, pin_seguridad, contrasenia, rol_id, area_id, estado_usuario_id)
 VALUES
 ('Ronny', 'Tito', '74214090', 'ronny.tito@muni.gob.pe', '999222111', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 1, 1, 1),
-('Erickson', 'Riveros', '75689034', 'erickson.riveros@muni.gob.pe', '99988777', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 1, 1, 1),
-('Pedro Jose', 'Lopez Gamarra', '87654321', 'pedro.lopez@muni.gob.pe', '912345678', '$2b$10$/P6kOcuBahbuL33pMzqiIuUnlVMgfthTg8LN/pfgRZb9rYENZamte', '$2b$10$KjK50MXm70IpDmswDbMUP.pe68uiuug/qIaXFllsLr6wr6S8.JSB2', 2, 2, 1);
+
+('Erickson', 'Riveros', '75689034', 'erickson.riveros@muni.gob.pe', '99988777', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 2, 2, 1),
+
+('Luis', 'Ari', '74210067', 'luis.ari@muni.gob.pe', '999222222', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 3, 3, 1),
+
+('Jhosep', 'No mas', '74210012', 'jhosep.nomas@muni.gob.pe', '999222333', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 3, 4, 1),
+
+('Fernando', 'Rodriguez', '74210015', 'fernando.rodrigue@muni.gob.pe', '999222777', '$2b$10$GTiM.cux90yaAFqeW6fRgeTVGOjXxmRNUc/V07DQWxNIzuBbj89l2', '$2b$10$6J7Q4ZHuiVCY8745Bwz6OOzqkAJ0OX5z23rLuOO9bH/h2BBL4wZvy', 3, 5, 1),
+
+('Pedro Jose', 'Lopez Gamarra', '87654321', 'pedro.lopez@muni.gob.pe', '912345678', '$2b$10$/P6kOcuBahbuL33pMzqiIuUnlVMgfthTg8LN/pfgRZb9rYENZamte', '$2b$10$KjK50MXm70IpDmswDbMUP.pe68uiuug/qIaXFllsLr6wr6S8.JSB2', 3, 6, 1);
 
 
 
@@ -78,8 +86,7 @@ INSERT INTO estados_solicitud (nombre, descripcion) VALUES
 ('Derivado', 'La solicitud fue derivada a otra área para su atención.'),
 ('Aprobado', 'El trámite ha sido aceptado o autorizado por el área.'),
 ('Rechazado', 'El trámite ha sido denegado o no aprobado por el área.'),
-('Anulado', 'El trámite fue invalidado o cancelado por alguna razón.'),
-('Finalizado', 'El proceso o trámite ha concluido completamente.');
+('Anulado', 'El trámite fue invalidado o cancelado por alguna razón.');
 
 
 -- Canales por donde se registran las solicitudes

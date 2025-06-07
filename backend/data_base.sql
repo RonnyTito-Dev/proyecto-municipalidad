@@ -178,7 +178,7 @@ CREATE TABLE notificaciones (
     id SERIAL PRIMARY KEY,
     codigo_solicitud VARCHAR(50) REFERENCES solicitudes(codigo_solicitud), -- Upper case + trim
     canal_notificacion_id INT NOT NULL REFERENCES canales_notificacion(id),
-    mensaje VARCHAR(300) NOT NULL,                         -- trim
+    mensaje VARCHAR(500) NOT NULL,                         -- trim
     fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

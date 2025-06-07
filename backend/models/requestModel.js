@@ -70,13 +70,17 @@ class RequestModel {
                 so.celular_ciudadano,
                 so.codigo_seguimiento,
                 ars.nombre AS area_sugerida,
+                ara.id AS area_asignada_id,
                 ara.nombre AS area_asignada,
                 so.asunto,
                 so.contenido,
                 TO_CHAR(so.fecha_envio, 'DD/MM/YYYY HH24:MI:SS') AS fecha_envio,
+                cn.id AS canal_notificacion_id,
                 cn.nombre AS canal_notificacion,
                 cs.nombre AS canal_solicitud,
+                es.id AS estado_solicitud_id,
                 es.nombre AS estado_solicitud,
+                us.id AS usuario_id,
                 us.nombres || us.apellidos AS usuario_tramite
             FROM solicitudes so
             INNER JOIN areas ars ON so.area_sugerida_id = ars.id

@@ -46,23 +46,23 @@ router.post('/', requestController.createRequest);
 
 // ======================================= SOLICITUD PUT =======================================
 
-// // Recepcionar una solicitud
-// router.put('/:codigo-solicitud/recepcionar', requestController.receiveRequest);
+// Recepcionar una solicitud
+router.put('/:codigo_solicitud/recepcionar', requestController.receiveRequest);
 
-// // Marcar solicitud como en trabajo
-// router.put('/:codigo-solicitud/trabajar', requestController.workOnRequest);
+// Marcar solicitud como en trabajo
+router.put('/:codigo_solicitud/trabajar', requestController.workOnRequest);
 
-// // Derivar la solicitud a otra área
-// router.put('/:codigo-solicitud/derivar', requestController.forwardRequest);
+// Derivar la solicitud a otra área
+router.put('/:codigo_solicitud/derivar', requestController.forwardRequest);
 
-// // Aprobar o cerrar la solicitud
-// router.put('/:codigo-solicitud/aprobar', requestController.approveRequest);
+// Aprobar o cerrar la solicitud
+router.put('/:codigo_solicitud/aprobar', requestController.approveRequest);
 
-// // Rechazar la solicitud
-// router.put('/:codigo-solicitud/rechazar', requestController.rejectRequest);
+// Rechazar la solicitud
+router.put('/:codigo_solicitud/rechazar', requestController.rejectRequest);
 
-// // Anular (cancelar) la solicitud
-// router.put('/:codigo-solicitud/anular', requestController.cancelRequest);
+// Anular (cancelar) la solicitud
+router.put('/:codigo_solicitud/anular', requestController.cancelRequest);
 
 
 // Exportamos el router

@@ -4,8 +4,6 @@
 const requestService = require('../services/requestService');
 const requestHandlerService = require('../utils/requestHandlerService');
 
-// Importamos el manejador de solicitudes
-const RequestHandlerService = require('../utils/requestHandlerService');
 
 class RequestController {
 
@@ -81,19 +79,18 @@ class RequestController {
 
     // Crear una nueva solicitud
     async createRequest(req, res, next) {
-        
+
         try {
 
-            const data = { 
-                ...req.body, 
+            const data = {
+                ...req.body,
                 usuario_id: req.user?.usuario_id ?? null
             };
 
-            const newRequest = await requestService.addRequest(data);
-
-            // const newRequest = await requestHandlerService.creatingRequest(data);
-
+            // const newRequest = await requestService.addRequest(data);
+            const newRequest = await requestHandlerService.creatingRequest(data);
             res.status(201).json(newRequest);
+
         } catch (error) {
             next(error);
         }
@@ -145,10 +142,78 @@ class RequestController {
     // Recepcionar solicitud
     async receiveRequest(req, res, next) {
         const { codigo_solicitud } = req.params;
-        const { estado_solicitud_id, area_asignada_id } = req.body;
+        const { notas = null } = req.body || {};
 
         try {
-            const updatedRequest = await requestService.modifyStatusAndAreaAsign({ codigo_solicitud, estado_solicitud_id, area_asignada_id });
+            const updatedRequest = await requestHandlerService.receiveRequest({ codigo_solicitud, notas, ...req.user  });
+            res.json(updatedRequest);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Marcar solicitud como en trabajo
+    async workOnRequest(req, res, next) {
+        const { codigo_solicitud } = req.params;
+        const { notas = null } = req.body || {};
+
+        try {
+            const updatedRequest = await requestHandlerService.workOnRequest({ codigo_solicitud, notas, ...req.user });
+            res.json(updatedRequest);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Derivar la solicitud a otra área
+    async forwardRequest(req, res, next) {
+        const { codigo_solicitud } = req.params;
+        const { notas = null, area_destino_id } = req.body || {};
+
+        try {
+            const updatedRequest = await requestHandlerService.forwardRequest({ codigo_solicitud, area_destino_id, notas, ...req.user });
+            res.json(updatedRequest);
+            
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
+    // Aprobar o cerrar la solicitud
+    async approveRequest(req, res, next) {
+        const { codigo_solicitud } = req.params;
+        const { notas = null } = req.body || {};
+
+        try {
+            const updatedRequest = await requestHandlerService.approveRequest({ codigo_solicitud, notas, ...req.user });
+            res.json(updatedRequest);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    // Rechazar la solicitud
+    async rejectRequest(req, res, next) {
+        const { codigo_solicitud } = req.params;
+        const { notas = null } = req.body || {};
+
+        try {
+            const updatedRequest = await requestHandlerService.rejectRequest({ codigo_solicitud, notas, ...req.user });
+            res.json(updatedRequest);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+
+     // Anular (cancelar) la solicitud
+    async cancelRequest(req, res, next) {
+        const { codigo_solicitud } = req.params;
+        const { notas = null } = req.body || {};
+
+        try {
+            const updatedRequest = await requestHandlerService.cancelRequest({ codigo_solicitud, notas, ...req.user });
             res.json(updatedRequest);
         } catch (error) {
             next(error);
