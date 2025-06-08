@@ -1,35 +1,57 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// App.jsx
 
-function App() {
-  const [count, setCount] = useState(0)
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+import PublicHomeLayout from './layouts/PublicHomeLayout';
+import LoginPage from './pages/Public/LoginPage';
+import CreateRequestPage from './pages/Public/CreateRequestPage';
+import TrackRequestPage from './pages/Public/TrackRequestPage';
 
-export default App
+import DashboardLayout from './layouts/DashboardLayout';
+
+import InicioPage from './pages/Private/InicioPage';
+
+import AsistentPage from './pages/Private/AsistentePage';
+import TodasSolicitudesPage from './pages/Private/TodasSolitudesPages';
+import RegistrarSolicitudPage from './pages/Private/RegistrarSolicitudPage';
+import AreasPage from './pages/Private/AreasPage';
+import UsuariosPage from './pages/Private/UsuariosPage';
+import RolesPage from './pages/Private/RolesPage';
+import MiCuentaPage from './pages/Private/MiCuentaPage';
+import LogsPage from './pages/Private/LogsPage';
+
+const App = () => (
+    <Router>
+        <Routes>
+            {/* Rutas públicas */}
+            <Route path="/" element={<PublicHomeLayout />}>
+                <Route index element={<CreateRequestPage />} />
+                <Route path="login" element={<LoginPage />} />
+                <Route path="track-request" element={<TrackRequestPage />} />
+            </Route>
+
+            {/* Rutas privadas: Dashboard */}
+            <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<InicioPage />} />
+                <Route path="areas" element={<AreasPage />} />
+                <Route path="usuarios" element={<UsuariosPage />} />
+                <Route path="roles" element={<RolesPage />} />
+                <Route path="logs" element={<LogsPage />} />
+                <Route path="asistente" element={<AsistentPage />} />
+                <Route path="mi-cuenta" element={<MiCuentaPage />} />
+
+                {/* Rutas para solicitudes */}
+                <Route path="solicitudes/todas" element={<TodasSolicitudesPage />} />
+                <Route path="solicitudes/crear" element={<RegistrarSolicitudPage />} />
+
+                {/* Agrupación de rutas bajo "configuracion" */}
+
+            </Route>
+
+        </Routes>
+    </Router>
+);
+
+export default App;
+

@@ -1,68 +1,943 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* Importar Nunito desde Google Fonts si no lo tienes aún */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+    font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ==================== ESTILOS PARA LAYOUT PUBLICA ==================== */
+/* Fondo con imagen y degradado */
+.public-layout {
+    min-height: 100vh;
+    width: 100%;
+    background:
+        linear-gradient(135deg, rgba(6, 255, 48, 0.277), rgba(10, 130, 228, 0.6)),
+        /* Degradado cruzado */
+        url('./assets/background-arequipa.jpg') no-repeat center center fixed;
+    /* Imagen de fondo */
+    background-size: cover;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+
+/* Capa interior */
+.overlay {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
+/* Menú centrado y estilizado */
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.089);
+    /* blanco semi-opaco */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Botones del menú */
+.nav-button {
+    background-color: rgba(7, 0, 0, 0);
+    color: #fefefe;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-button:hover,
+.nav-button.active {
+    background-color: #0000006b;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Área de renderizado ocupa todo el ancho */
+.content-area {
+    flex: 1;
+    padding: 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+
+/* ==================== ESTILOS PARA EL LOGIN ==================== */
+
+/* Encabezado del login centrado */
+.login-page {
+    padding: 1rem;
+    padding-top: 60px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 420px;
+    width: 100%;
+}
+
+.login-card-body {
+    padding: 2rem;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-title {
+    font-size: 1.75rem;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.login-subtitle {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    overflow: hidden;
+}
+
+.input-icon {
+    padding: 0.75rem;
+    color: #007bff;
+}
+
+.custom-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+}
+
+.toggle-password {
+    padding: 0.75rem;
+    background: transparent;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+}
+
+.custom-submit-btn {
+    width: 100%;
+    background-color: #007bff;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.custom-submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.spinner {
+    border: 2px solid white;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+    animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* ==================== ESTILOS PARA EL RASTREO TRACKING ==================== */
+
+/* Contenedor general */
+.track-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    padding: 3rem 1rem 2rem 1rem;
+}
+
+
+
+/* Contenedor de buscar solicitud */
+.container-tracking {
+    padding: 0rem;
+    transition: opacity 0.3s ease;
+}
+
+.track-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    padding: 1.2rem 2rem;
+    width: 400px;
+}
+
+.track-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: #0077ff;
+}
+
+.track-body {
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.track-form-header .icon-large {
+    font-size: 3rem;
+    color: #0077ff;
+}
+
+.track-form-header h4 {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: #7f8d9c;
+    padding-bottom: 20px;
+}
+
+.track-form .form-group {
+    margin-bottom: 1rem;
+}
+
+.track-form input[type="text"],
+.track-form input[type="password"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.track-form input:focus {
+    border-color: #3498db;
+}
+
+.pin-group {
+    position: relative;
+}
+
+.pin-toggle-btn {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #0077ff;
+}
+
+.btn-container {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #1dc18a;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #34c671;
+}
+
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid white;
+    border-radius: 50%;
+    width: 1rem;
+    height: 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+
+/* Estilos para los resultados y historial */
+/* Contenedor principal */
+.container-result {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* Tarjeta de historial */
+.container-history {
+    width: 800px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container-history:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* Header de la tarjeta */
+.track-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.track-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+.track-header h3 svg {
+    color: #4361ee;
+}
+
+.badge-id {
+    background-color: #4361ee;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.8rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
+}
+
+/* Cuerpo de la tarjeta */
+.track-body {
+    position: relative;
+}
+
+.track-date {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #7f8c8d;
+    margin-bottom: 1.5rem;
+    gap: 0.5rem;
+}
+
+.track-date svg {
+    color: #4361ee;
+}
+
+/* Línea de tiempo moderna */
+.timeline {
+    position: relative;
+    padding-left: 1.8rem;
+    margin-left: 0.5rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #4361ee, #39ac85);
+    border-radius: 3px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover {
+    transform: translateX(5px);
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item-marker {
+    position: absolute;
+    left: -2.25rem;
+    top: 0.25rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    border: 4px solid #4361ee;
+    box-shadow: 0 3px 10px rgba(67, 97, 238, 0.3);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timeline-item-marker::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background-color: #4361ee;
+    border-radius: 50%;
+}
+
+.timeline-item-current .timeline-item-marker {
+    border-color: #4cc9a0;
+    box-shadow: 0 3px 15px rgba(76, 201, 160, 0.4);
+}
+
+.timeline-item-current .timeline-item-marker::after {
+    background-color: #4cc9a0;
+}
+
+.timeline-item-content {
+    background-color: rgb(241, 241, 241);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover .timeline-item-content {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.timeline-item-area {
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4361ee;
+    font-weight: 500;
+    margin: 0.5rem 0;
+}
+
+.timeline-item-area svg {
+    color: #7f8c8d;
+}
+
+.timeline-item-notes {
+    background-color: #f8fafc;
+    border-left: 4px solid #4361ee;
+    padding: 0.875rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #34495e;
+    transition: all 0.3s ease;
+}
+
+.timeline-item-current .timeline-item-notes {
+    border-left-color: #4cc9a0;
+}
+
+/* Badges de estado */
+.badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.badge-success {
+    background-color: #4cc9a0;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #f8961e;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #f94144;
+    color: white;
+}
+
+.badge-info {
+    background-color: #4895ef;
+    color: white;
+}
+
+.badge-secondary {
+    background-color: #bdc3c7;
+    color: #2c3e50;
+}
+
+/* Botón */
+.btn-ver-detalles {
+    color: #4361ee;
+    border-color: #4361ee;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-outline-primary:hover {
+    background-color: #4361ee;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container-history {
+        padding: 1.5rem;
+    }
+
+    .timeline {
+        padding-left: 1.5rem;
+    }
+
+    .timeline-item-marker {
+        left: -1.75rem;
+        width: 16px;
+        height: 16px;
+    }
+
+    .timeline-item-content {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .track-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .badge-id {
+        margin-left: 0;
+    }
+
+    .timeline-item-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* Detalles de la solicitud */
+/* Contenedor principal */
+.container-details {
+    width: 800px;
     background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    margin-top: 2rem;
+    transition: all 0.3s ease;
 }
+
+/* Encabezado */
+.track-header h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    color: #1e3a8a;
+    /* Azul fuerte */
+}
+
+/* Bloques interiores (Ciudadano, Trámite) */
+.track-card-inner {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.track-card-inner:hover {
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.1);
+    /* Sombra azul suave */
+}
+
+/* Títulos internos */
+.track-card-inner h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Lista de detalles */
+.track-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.track-list li {
+    margin-bottom: 0.6rem;
+    font-size: 0.95rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+}
+
+.track-list li strong {
+    width: 140px;
+    color: #111827;
+    font-weight: 600;
+}
+
+/* Contenido largo */
+.track-content-box {
+    background-color: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-top: 0.3rem;
+    font-size: 0.95rem;
+    white-space: pre-line;
+    color: #374151;
+}
+
+/* Botón */
+.btn-container .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: 0.2s ease;
+}
+
+.btn-container .btn:hover {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border-color: #1e3a8a;
+}
+
+/* Footer */
+.track-footer {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 1.5rem;
+}
+
+
+
+/* Estilos para crear una solicitud *
+
+/* Estilos generales */
+.contenedor-crear-solicitud {
+    width: 1000px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-attachment: red;
+}
+
+/* Títulos */
+.contenedor-crear-solicitud h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.contenedor-crear-solicitud h5 {
+    color: #4361ee;
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Formulario */
+.contenedor-crear-solicitud form {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Grupos de formulario */
+.grupo-formulario {
+    margin-bottom: 1.5rem;
+}
+
+/* Input groups */
+.grupo-input {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    position: relative;
+}
+
+.icono-input {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: #16cf16;
+    border: 1px solid #ced4da;
+    border-right: none;
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.icono-input svg {
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+/* Campos de formulario */
+.campo-formulario {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ced4da;
+    border-radius: 0 0.375rem 0.375rem 0;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.campo-formulario:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    outline: none;
+}
+
+textarea {
+    height: 145px;
+}
+
+/* Botones */
+.boton-consulta {
+    border: 1px solid #ced4da;
+    border-left: none;
+    background-color: #de2c04;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.boton-consulta:hover {
+    background-color: #e9ecef;
+}
+
+.boton-consulta svg {
+    font-size: 1.1rem;
+}
+
+.boton-enviar {
+    background-color: #4361ee;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.boton-enviar:hover {
+    background-color: #3a56d4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.boton-enviar:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Spinner */
+.spinner-carga {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 0.2em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner 0.75s linear infinite;
+    margin-right: 0.5rem;
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Alertas */
+.alerta {
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.alerta-exito {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.alerta-error {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+.alerta svg {
+    margin-right: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* Texto de ayuda */
+.texto-ayuda {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .contenedor-crear-solicitud {
+        padding: 1rem;
+    }
+
+    .contenedor-crear-solicitud form {
+        padding: 1.5rem;
+    }
+
+    .contenedor-crear-solicitud h2 {
+        font-size: 1.5rem;
+    }
+
+    .contenedor-crear-solicitud h5 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Estilos para el campo de PIN */
+.grupo-pin {
+    position: relative;
+}
+
+.boton-toggle-pin {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 3rem;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.boton-toggle-pin:hover {
+    color: #495057;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

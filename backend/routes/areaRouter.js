@@ -12,6 +12,9 @@ const areaController = require('../controllers/areaController');
 // Importamos el middleware auth
 const authMiddleware = require('../middleware/authMiddleware');
 
+// Obtener todas las áreas
+router.get('/', areaController.getAreas);
+
 // Proteger las rutas
 router.use(authMiddleware);
 

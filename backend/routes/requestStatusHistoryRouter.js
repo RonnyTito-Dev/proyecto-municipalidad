@@ -12,6 +12,10 @@ const requestStatusHistoryController = require('../controllers/requestStatusHist
 // Importamos el middleware auth
 const authMiddleware = require('../middleware/authMiddleware');
 
+// Obtener historial por código de seguimiento
+router.get('/seguimiento/:codigo_seguimiento', requestStatusHistoryController.getStatusHistoriesByTrackingCode);
+
+
 // Proteger las rutas
 router.use(authMiddleware);
 

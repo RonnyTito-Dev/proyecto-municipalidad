@@ -13,7 +13,7 @@ const reniecController = require('../controllers/reniecController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Proteger las rutas con middleware de autenticación
-router.use(authMiddleware);
+// router.use(authMiddleware);
 
 // ======================================= SOLICITUD GET =======================================
 

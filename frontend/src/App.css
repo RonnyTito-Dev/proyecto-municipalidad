@@ -1,42 +1,445 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* ============================= Estilos generales del header  =============================== */
+/* Estilos generales del header */
+
+.header-container {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;  /* Cambiado de relative a sticky */
+    top: 0;            /* Necesario para sticky */
+    z-index: 1000;     /* Aumentado el z-index para asegurar que esté por encima */
+    width: 100%;       /* Asegurar que ocupe todo el ancho */
+}
+/* Logo y botón de menú */
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.menu-toggle-btn {
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.menu-toggle-btn:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.05);
 }
 
-.card {
-  padding: 2em;
+.menu-toggle-btn i {
+    color: #4361ee;
+    font-size: 1.25rem;
 }
 
-.read-the-docs {
-  color: #888;
+.app-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: white;
+    letter-spacing: 0.5px;
 }
+
+/* Controles de usuario */
+.user-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notification-btn {
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-btn i {
+    color: #4361ee;
+    font-size: 1.1rem;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #f94144;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid white;
+}
+
+/* Dropdown de usuario */
+.user-dropdown {
+    position: relative;
+}
+
+.user-dropdown-btn {
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.user-dropdown-btn:hover {
+    background-color: #f8f9fa;
+}
+
+.user-avatar {
+    background-color: #4361ee;
+    color: white;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.user-info {
+    text-align: left;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.user-name {
+    font-weight: 500;
+    color: #212529;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-role {
+    font-size: 0.75rem;
+    color: #6c757d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+    border-color: #e9ecef;
+}
+
+.logout-btn {
+    color: #f94144 !important;
+}
+
+.logout-btn:hover {
+    background-color: rgba(249, 65, 68, 0.1) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-container {
+        padding: 0.75rem 1rem;
+    }
+
+    .user-name {
+        display: none;
+    }
+
+    .user-role {
+        display: none;
+    }
+
+    .user-dropdown-btn {
+        min-width: auto;
+        padding: 0.5rem;
+    }
+
+    .app-title {
+        font-size: 1.1rem;
+    }
+}
+
+
+
+
+
+
+/* ============================= Estilos generales del sidebar  =============================== */
+.sidebar-container {
+    background: linear-gradient(180deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 270px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1000;
+}
+
+.sidebar-container.collapsed {
+    width: 95px;
+}
+
+/* Contenido del sidebar */
+.sidebar-content {
+    padding: 1.5rem 0.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Elementos del menú */
+.menu-item {
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.menu-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.menu-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.menu-link.active {
+    background-color: white;
+    color: #4361ee;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.menu-icon {
+    font-size: 1.25rem;
+    min-width: 40px;
+    display: flex;
+    justify-content: center;
+}
+
+.menu-text {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    white-space: nowrap;
+}
+
+.sidebar-container.collapsed .menu-text {
+    opacity: 0;
+    transform: translateX(-20px);
+    position: absolute;
+}
+
+/* Menús desplegables */
+.menu-toggle {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.menu-toggle .menu-text {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.menu-toggle .menu-caret {
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle.open .menu-caret {
+    transform: rotate(180deg);
+}
+
+.submenu {
+    padding-left: 1.5rem;
+    margin-top: 0.25rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.submenu-item {
+    margin-bottom: 0.25rem;
+}
+
+.submenu-link {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.submenu-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.submenu-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-weight: 500;
+}
+
+/* Efecto de hover para el sidebar colapsado */
+.sidebar-container.collapsed .menu-item:hover .menu-text {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+    background-color: #3a0ca3;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin-left: 1rem;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Scrollbar personalizada */
+.sidebar-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Footer del sidebar */
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+}
+
+/* Spinner de carga */
+.sidebar-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0.3rem solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.submenu-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 2rem;
+}
+
+.submenu-icon {
+    width: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+
+/* .sidebar-container.collapsed .submenu {
+    display: none;
+} */
+
+/* .sidebar-container.collapsed .menu-caret {
+    display: none;
+} */

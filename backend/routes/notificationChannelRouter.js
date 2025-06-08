@@ -12,6 +12,9 @@ const notificationChannelController = require('../controllers/notificationChanne
 // Importamos el middleware auth
 const authMiddleware = require('../middleware/authMiddleware');
 
+// Obtener todos los canales de notificación
+router.get('/', notificationChannelController.getChannels);
+
 // Proteger las rutas
 router.use(authMiddleware);
 

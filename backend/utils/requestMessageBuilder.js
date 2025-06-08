@@ -23,7 +23,7 @@ function construirMensaje({ nombres_ciudadano, apellidos_ciudadano, estado_solic
     const nombreCompleto = `${formatter.toTitleCase(nombres_ciudadano)} ${formatter.toTitleCase(apellidos_ciudadano)}`;
 
     // Url de seguimiento
-    const baseURL = 'http://localhost:3000/api/solicitudes/seguimiento';
+    const baseURL = 'http://localhost:5173/';
 
     // Seleccionar plantilla a usar según estado
     const plantilla = estadoMensajes[estado_solicitud];
