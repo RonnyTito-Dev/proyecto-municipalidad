@@ -1,4 +1,36 @@
 /* ============================= Estilos generales del header  =============================== */
+/* Scroll para navegadores basados en WebKit (Chrome, Edge, Brave, etc.) */
+::-webkit-scrollbar {
+  width: 6px;         /* ancho del scroll vertical */
+  height: 6px;        /* alto del scroll horizontal */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* fondo del track del scroll */
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4f46e5, #9333ea); /* azul a morado */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #4338ca, #7c3aed); /* tono más oscuro al pasar el mouse */
+}
+
+/* Scroll para Firefox */
+* {
+  scrollbar-width: thin;               /* delgado */
+  scrollbar-color: #6366f1 #f0f0f0;    /* thumb y track */
+}
+
+
+
+
+
+
+
+
 /* Estilos generales del header */
 
 .header-container {
@@ -223,16 +255,20 @@
 
 
 /* ============================= Estilos generales del sidebar  =============================== */
+/* Sidebar fijo */
 .sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 270px;
     background: linear-gradient(180deg, #4361ee 0%, #3a0ca3 100%);
     color: white;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     transition: all 0.3s ease;
-    width: 270px;
     box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
-    position: relative;
     z-index: 1000;
 }
 

@@ -1,0 +1,246 @@
+/* src/pages/Private/RolesPage.css */
+
+/* Estilos generales */
+.roles-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.titulo-principal {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.titulo-principal::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background-color: #3498db;
+}
+
+/* Formulario */
+.formulario-roles {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+}
+
+.titulo-seccion {
+  color: #2c3e50;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.form-fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-grupo {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-grupo label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+}
+
+.form-grupo input,
+.form-grupo textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-grupo input:focus,
+.form-grupo textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.form-grupo textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.botones-formulario {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Botones */
+.boton-primario,
+.boton-secundario,
+.boton-editar,
+.boton-eliminar {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.boton-primario {
+  background-color: #3498db;
+  color: white;
+}
+
+.boton-primario:hover {
+  background-color: #2980b9;
+}
+
+.boton-secundario {
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #ddd;
+}
+
+.boton-secundario:hover {
+  background-color: #e9ecef;
+}
+
+.boton-editar {
+  background-color: #f39c12;
+  color: white;
+  margin-right: 0.5rem;
+}
+
+.boton-editar:hover {
+  background-color: #e67e22;
+}
+
+.boton-eliminar {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.boton-eliminar:hover {
+  background-color: #c0392b;
+}
+
+/* Tabla */
+.tabla-contenedor {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+}
+
+.tabla-responsive {
+  overflow-x: auto;
+}
+
+.tabla-roles {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.tabla-roles th,
+.tabla-roles td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-roles th {
+  background-color: #3498db;
+  color: white;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.tabla-roles tr:hover {
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+.acciones-celda {
+  white-space: nowrap;
+}
+
+.sin-registros {
+  text-align: center;
+  padding: 2rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Spinner de carga */
+.cargando {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(52, 152, 219, 0.2);
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .roles-container {
+    padding: 1rem;
+  }
+  
+  .formulario-roles,
+  .tabla-contenedor {
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  
+  .tabla-roles {
+    font-size: 0.9rem;
+  }
+  
+  .acciones-celda {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .boton-editar,
+  .boton-eliminar {
+    width: 100%;
+    margin-right: 0;
+  }
+}

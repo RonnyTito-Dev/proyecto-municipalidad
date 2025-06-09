@@ -100,17 +100,22 @@ const CreateRequestPage = () => {
         setErrorMsg('');
 
         try {
-            await api.post('/solicitudes/public', form);
+            const response = await api.post('/solicitudes/public', form);
+            const data = response.data;
 
-            // Alerta de éxito
+            // Mostrar alerta solo con código de seguimiento
             Swal.fire({
                 icon: 'success',
                 title: '¡Solicitud enviada!',
-                text: 'Los detalles de la misma se enviaran a su email.',
+                html: `
+            <p>Su solicitud fue registrada exitosamente.</p>
+            <p><strong>Código de seguimiento:</strong> ${data.codigo_seguimiento}</p>
+            <p>Este código también ha sido enviado a su correo.</p>
+        `,
                 confirmButtonColor: '#2563eb'
             });
 
-
+            // Limpiar formulario
             setForm({
                 nombres_ciudadano: '',
                 apellidos_ciudadano: '',
@@ -126,16 +131,20 @@ const CreateRequestPage = () => {
                 canal_notificacion_id: ''
             });
         } catch (err) {
+            const errorMessage = err.response?.data?.message || 'Verifica los datos ingresados y vuelve a intentar.';
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error al enviar la solicitud',
-                text: 'Verifica los datos ingresados y vuelve a intentar.',
-                confirmButtonColor: '#dc2626' // rojo
+                text: errorMessage,
+                confirmButtonColor: '#dc2626'
             });
+
             console.error(err);
         } finally {
             setLoading(false);
         }
+
     };
 
     return (

@@ -16,3 +16,6 @@
 .DS_Store
 *.log
 *.tmp
+
+/chatbot-backend
+/chatbot-frontend

@@ -171,7 +171,7 @@ class RequestController {
         const { notas = null, area_destino_id } = req.body || {};
 
         try {
-            const updatedRequest = await requestHandlerService.forwardRequest({ codigo_solicitud, area_destino_id, notas, ...req.user });
+            const updatedRequest = await requestHandlerService.forwardRequest({ codigo_solicitud, area_destino_id: Number(area_destino_id), notas, ...req.user });
             res.json(updatedRequest);
             
         } catch (error) {

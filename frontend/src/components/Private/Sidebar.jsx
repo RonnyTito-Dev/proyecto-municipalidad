@@ -32,31 +32,20 @@ const Sidebar = ({ collapsed }) => {
     }
 
     const allMenuItems = [
-        { path: '/dashboard', label: 'Inicio', icon: 'bi-house-fill', roles: [1, 2, 3, 4] },
+        
         {
-            label: 'solicitudes', icon: 'bi-cart-fill', roles: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+            label: 'solicitudes', icon: 'bi-file-break-fill', roles: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
             subItems: [
                 { path: '/dashboard/solicitudes/todas', label: 'Todas Las Solicitudes', icon: 'bi-clock-history', roles: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
-                { path: '/dashboard/solicitudes/crear', label: 'Crear Solicitud', icon: 'bi-clock-history', roles: [1, 2, 4] },
-                { path: '/dashboard/solicitudes/historial-estados', label: 'Historial de Estados', icon: 'bi-clock-history', roles: [1, 2] },
-                { path: '/dashboard/solicitudes/notificaciones', label: 'Notificaciones', icon: 'bi-bell-fill', roles: [1, 2] }
+                { path: '/dashboard/solicitudes/crear', label: 'Crear Solicitud', icon: 'bi-clock-history', roles: [1, 2, 4] }
             ]
         },
         { path: '/dashboard/areas', label: 'Áreas', icon: 'bi-people-fill', roles: [1, 2] },
-        {
-            label: 'Configuración', icon: 'bi-gear-fill', roles: [1, 2],
-            subItems: [
-                { path: '/canales-solicitud', label: 'Canales de Solicitud', icon: 'bi-diagram-3-fill', roles: [1, 2] },
-                { path: '/configuracion/canales-notificacion', label: 'Canales de Notificación', icon: 'bi-broadcast-pin', roles: [1, 2] },
-                { path: '/configuracion/estados-registro', label: 'Estados de Registro', icon: 'bi-ui-checks-grid', roles: [1, 2] },
-                { path: '/configuracion/estados-usuario', label: 'Estados de Usuario', icon: 'bi-person-lines-fill', roles: [1, 2] },
-                { path: '/configuracion/estados-solicitud', label: 'Estados de Solicitud', icon: 'bi-journal-text', roles: [1, 2] },
-            ]
-        },
         { path: '/dashboard/usuarios', label: 'Usuarios', icon: 'bi-person-badge-fill', roles: [1, 2] },
         { path: '/dashboard/roles', label: 'Roles', icon: 'bi-shield-lock-fill', roles: [1, 2] },
         { path: '/dashboard/logs', label: 'Registros', icon: 'bi-clipboard-data-fill', roles: [1, 2] },
-        { path: '/dashboard/asistente', label: 'Asistente', icon: 'bi-chat-dots-fill', roles: [1, 2] }
+        { path: '/dashboard/asistente', label: 'Asistente', icon: 'bi-chat-dots-fill', roles: [1, 2] },
+        { path: '/dashboard', label: 'Devs', icon: 'bi-code', roles: [1, 2, 3, 4] }
     ]
 
     const filteredMenuItems = allMenuItems

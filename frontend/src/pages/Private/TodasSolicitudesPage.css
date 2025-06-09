@@ -1,0 +1,347 @@
+/* Estilos generales */
+.contenedor-solicitudes {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.titulo-principal {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+/* Filtros */
+.contenedor-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.boton-filtro {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.boton-filtro:hover {
+    background-color: #d6dbdf;
+}
+
+.boton-filtro.activo {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Tarjeta de solicitudes */
+.tarjeta-solicitudes {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.encabezado-tarjeta {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-weight: 500;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Tabla */
+.tabla-solicitudes {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-solicitudes th {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 500;
+}
+
+.tabla-solicitudes td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.tabla-solicitudes tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Badges de estado */
+.badge-estado {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.badge-estado.pendiente {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge-estado.recepcionado {
+    background-color: #3498db;
+    color: white;
+}
+
+.badge-estado.en-proceso {
+    background-color: #9b59b6;
+    color: white;
+}
+
+.badge-estado.aprobado {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.badge-estado.rechazado {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.badge-estado.anulado {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+/* Botones de acción */
+.boton-accion {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.boton-recepcionar {
+    background-color: #3498db;
+    color: white;
+}
+
+.boton-recepcionar:hover {
+    background-color: #2980b9;
+}
+
+.boton-ver {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.boton-ver:hover {
+    background-color: #27ae60;
+}
+
+/* Modal */
+.modal-detalles .encabezado-modal {
+    border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+}
+
+.modal-detalles .titulo-modal {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.modal-detalles .cuerpo-modal {
+    padding: 20px;
+}
+
+.modal-detalles .pie-modal {
+    border-top: 1px solid #eee;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Detalles de la solicitud */
+.detalles-solicitud {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.seccion-detalles {
+    display: flex;
+    gap: 20px;
+}
+
+.columna-detalles {
+    flex: 1;
+}
+
+.item-detalle {
+    margin-bottom: 10px;
+}
+
+.etiqueta-detalle {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-right: 5px;
+}
+
+.valor-detalle {
+    color: #34495e;
+}
+
+.seccion-contenido {
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.seccion-contenido h5 {
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.asunto {
+    font-size: 16px;
+    color: #34495e;
+    margin-bottom: 15px;
+}
+
+.contenido {
+    white-space: pre-line;
+    line-height: 1.6;
+    color: #34495e;
+}
+
+.seccion-metadatos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.contenedor-estado {
+    display: flex;
+    align-items: center;
+}
+
+.etiqueta-estado {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-right: 5px;
+}
+
+.valor-estado {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Botones de acción en modal */
+.contenedor-botones-accion {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.boton-trabajar {
+    background-color: #3498db;
+    color: white;
+}
+
+.boton-trabajar:hover {
+    background-color: #2980b9;
+}
+
+.boton-derivar {
+    background-color: #f39c12;
+    color: white;
+}
+
+.boton-derivar:hover {
+    background-color: #e67e22;
+}
+
+.boton-aprobar {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.boton-aprobar:hover {
+    background-color: #27ae60;
+}
+
+.boton-rechazar {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.boton-rechazar:hover {
+    background-color: #c0392b;
+}
+
+.boton-anular {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+.boton-anular:hover {
+    background-color: #95a5a6;
+}
+
+.contenedor-derivar {
+    display: flex;
+    gap: 10px;
+}
+
+.selector-area {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+/* Mensajes */
+.indicador-carga, .mensaje-error {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+}
+
+.indicador-carga {
+    color: #3498db;
+}
+
+.mensaje-error {
+    color: #e74c3c;
+}
+
+.tabla-responsive {
+    overflow-x: auto;
+}
+
+.nombre-usuario {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 3px;
+}
+
+.rol-usuario {
+    font-size: 12px;
+    color: #7f8c8d;
+    background-color: #ecf0f1;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
